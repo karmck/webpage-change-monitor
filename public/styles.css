@@ -90,25 +90,48 @@ button.add {
   overflow: auto;
   position: relative;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 .close {
-  position: absolute;
-  top: 10px;
-  right: 15px;
+  position: sticky;
+  top: 20px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: grey;
+  color: #fff;
   font-size: 24px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: none;
+  z-index: 1001;
+  align-self: flex-end;
+  margin-bottom: auto;
+}
+
+.close:hover {
+  background: grey;
+}
+
+@media (max-width: 600px) {
+  .close {
+    position: fixed;
+    top: 25px;
+    right: 35px;
+    align-self: auto;
+  }
 }
 .snapshot-link {
   text-decoration: none;
   font-size: 18px;
 }
-/* .diffs {
-  padding: 12px;
-  border-left: 1px solid #ddd;
-  border-right: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
-  vertical-align: top;
-} */
+
 .diffs a {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 13px;

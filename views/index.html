@@ -107,12 +107,27 @@
     function closeDiffModal() {
       document.getElementById('diffModal').style.display = 'none';
       document.getElementById('diffBody').innerHTML = '';
+      document.body.style.overflow = '';
     }
 
     function closeSnapshotModal() {
       document.getElementById('snapshotModal').style.display = 'none';
       document.getElementById('snapshotBody').textContent = '';
+      document.body.style.overflow = '';
     }
+
+    // Close modals when clicking outside the modal-content
+    document.getElementById('diffModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('diffModal')) {
+        closeDiffModal();
+      }
+    });
+
+    document.getElementById('snapshotModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('snapshotModal')) {
+        closeSnapshotModal();
+      }
+    });
 
     function formatFilenameToHuman(f) {
       const ts = f.match(/diff_.*_(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z)\.txt/)[1];
@@ -146,6 +161,7 @@
           document.getElementById('diffTitle').textContent = `Diff: ${formatFilenameToHuman(f)}`;
           document.getElementById('diffBody').innerHTML = html;
           document.getElementById('diffModal').style.display = 'block';
+          document.body.style.overflow = 'hidden';
         };
         cell.appendChild(a);
       });
@@ -164,6 +180,7 @@
       document.getElementById('snapshotTitle').textContent = `Latest Snapshot: ${title}`;
       document.getElementById('snapshotBody').textContent = text;
       document.getElementById('snapshotModal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
     }
 
     function showAddForm() {
