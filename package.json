@@ -6,7 +6,8 @@
   "description": "Monitor webpages for content changes.",
   "scripts": {
     "start": "node src/index.js",
-    "start:once": "node src/index.js --once"
+    "start:once": "node src/index.js --once",
+    "web-ui": "node src/web-ui.js"
   },
 
   "dependencies": {

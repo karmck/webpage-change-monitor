@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Webpage Change Monitor</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; background: #f9f9f9; }
+    h1, h2 { color: #333; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+    th, td { padding: 12px; border: 1px solid #ddd; text-align: left; word-wrap: break-word; }
+
+    th { background: #f2f2f2; }
+    button { padding: 8px 12px; margin: 2px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    button.edit { background: #ffc107; color: #000; }
+    button.delete { background: #dc3545; color: #fff; }
+    button.add { background: #28a745; color: #fff; }
+    .form { display: none; margin-top: 20px; padding: 20px; background: #fff; border: 1px solid #ccc; border-radius: 8px; }
+    .form input { width: 100%; margin-bottom: 10px; padding: 8px; box-sizing: border-box; }
+    .form .buttons { display: flex; gap: 10px; }
+    .cancel { background: #6c757d; color: #fff; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+    .modal-content { background: #fff; margin: 2% auto; padding: 20px; width: 96%; max-width: 800px; max-height: 94%; overflow: auto; position: relative; box-sizing: border-box; }
+    .close { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; }
+    .snapshot-link { text-decoration: none; font-size: 18px; }
+    .diffs { padding: 12px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; vertical-align: top; }
+    .diffs a { font-family: Arial, Helvetica, sans-serif; font-size: 13px; white-space: nowrap; display: block; margin-bottom: 4px; }
+    .diffs a:last-child { margin-bottom: 0; }
+    .diffs a { font-family: Arial, Helvetica, sans-serif; font-size: 13px; white-space: nowrap; display: inline-block; }
+    @media (max-width: 600px) {
+      body { margin: 10px; padding: 10px; }
+      table,ad, tbody, th, td, tr { display: block; }
+      thead tr { position: absolute; top: -9999px; left: -9999px; }
+      tr { border: 1px solid #ccc; margin-bottom: 10px; }
+      td { border: none; border-bottom: 1px solid #eee; position: relative; padding-left: 50%; }
+      td:before { position: absolute; top: 12px; left: 12px; width: 45%; padding-right: 10px; white-space: nowrap; font-weight: bold; }
+      td:nth-of-type(1):before { content: "Title"; }
+      td:nth-of-type(2):before { content: "URL"; }
+      td:nth-of-type(3):before { content: "Selector"; }
+      td:nth-of-type(4):before { content: "Diffs"; }
+      td:nth-of-type(5):before { content: "Latest Snapshot"; }
+      td:nth-of-type(6):before { content: "Actions"; }
+      .modal-content { width: 98%; margin: 2% auto; padding: 15px; }
+      button { padding: 10px 14px; font-size: 14px; }
+    }
+    .diff-minus { background: #ffcccc; }
+    .diff-plus { background: #ccffcc; }
+  </style>
+</head>
+<body>
+  <h1>Webpage Change Monitor Configuration</h1>
+
+  <h2>Global Settings</h2>
+  <label for="intervalMinutes" style="display: block; margin-bottom: 8px;">Check Interval (minutes):</label>
+  <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+    <input type="number" id="intervalMinutes" min="1" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 120px;">
+    <button onclick="saveInterval()">Save Interval</button>
+  </div>
+
+  <h2>Monitored URLs</h2>
+
+  <table id="urlTable">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>URL</th>
+        <th>CSS Selector (optional)</th>
+        <th style="width: 250px;">Diffs</th>
+        <th style="width: 80px;">Latest Snapshot</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="urlList"></tbody>
+  </table>
+
+  <button class="add" onclick="showAddForm()">+ Add URL</button>
+
+  <div id="editForm" class="form">
+    <h2 id="formTitle">Edit URL</h2>
+    <form id="urlForm">
+      <input type="hidden" id="index">
+      <label>Title:<br><input type="text" id="title" required></label><br>
+      <label>URL:<br><input type="url" id="url" required></label><br>
+      <label>CSS Selector (optional):<br><input type="text" id="selector" placeholder="e.g. #main"></label><br>
+      <div class="buttons">
+        <button type="submit">Save</button>
+        <button type="button" class="cancel" onclick="hideForm()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="diffModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeDiffModal()">&times;</span>
+      <h2 id="diffTitle">Diff</h2>
+      <pre id="diffBody" style="background: #f4f4f4; padding: 10px; white-space: pre-wrap; word-break: break-word;"></pre>
+    </div>
+  </div>
+
+  <div id="snapshotModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeSnapshotModal()">&times;</span>
+      <h2 id="snapshotTitle">Snapshot</h2>
+      <pre id="snapshotBody" style="background: #f4f4f4; padding: 10px; white-space: pre-wrap; word-break: break-word; max-height: 70vh; overflow-y: auto;"></pre>
+    </div>
+  </div>
+
+  <script>
+    let entries = [];
+
+    async function loadConfig() {
+      const resp = await fetch('/api/config');
+      const cfg = await resp.json();
+      entries = cfg.urls;
+      document.getElementById('intervalMinutes').value = cfg.intervalMinutes;
+      render();
+    }
+
+    function render() {
+      const tbody = document.getElementById('urlList');
+      tbody.innerHTML = '';
+      entries.forEach((entry, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${entry.title}</td>
+          <td><a href="${entry.url}" target="_blank" rel="noopener noreferrer">${entry.url}</a></td>
+          <td>${entry.selector || ''}</td>
+          <td class="diffs" id="diffs-${idx}"></td>
+          <td><a href="#" class="snapshot-link" onclick="return loadSnapshot('${entry.title}');">&#128190;</a></td>
+          <td>
+            <button class="edit" onclick="edit(${idx})">Edit</button>
+            <button class="delete" onclick="remove(${idx})">Delete</button>
+          </td>`;
+        tbody.appendChild(tr);
+        loadDiffs(idx, entry.title);
+      });
+    }
+
+    function showForm(title) {
+      document.getElementById('formTitle').textContent = title;
+      document.getElementById('editForm').style.display = 'block';
+    }
+
+    function hideForm() {
+      document.getElementById('editForm').style.display = 'none';
+      document.getElementById('urlForm').reset();
+    }
+
+    function closeDiffModal() {
+      document.getElementById('diffModal').style.display = 'none';
+      document.getElementById('diffBody').innerHTML = '';
+    }
+
+    function closeSnapshotModal() {
+      document.getElementById('snapshotModal').style.display = 'none';
+      document.getElementById('snapshotBody').textContent = '';
+    }
+
+    function formatFilenameToHuman(f) {
+      const ts = f.match(/diff_.*_(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z)\.txt/)[1];
+      const dt = new Date(ts.replace(/-(\d{2})-(\d{2})-(\d{3})Z/, `:$1:$2.$3Z`));
+      return dt.toLocaleString('en-MT', { timeZone: 'Europe/Malta', dateStyle: 'medium', timeStyle: 'medium' });
+    }
+
+    async function loadDiffs(idx, title) {
+      const resp = await fetch(`/api/diffs?title=${encodeURIComponent(title)}`);
+      const files = await resp.json();
+      const cell = document.getElementById(`diffs-${idx}`);
+      if (!files.length) {
+        cell.innerHTML = '';
+        return;
+      }
+      // Show latest three, most recent on top
+      const latest = files.sort().reverse().slice(0, 3);
+      latest.forEach(f => {
+        const a = document.createElement('a');
+        a.href = '#';
+        a.textContent = formatFilenameToHuman(f);
+        a.onclick = async e => {
+          e.preventDefault();
+          const r = await fetch(`/api/diff-content?title=${encodeURIComponent(title)}&file=${encodeURIComponent(f)}`);
+          const text = await r.text();
+          const html = text.split('\n').map(line => {
+            if (line.startsWith('-')) return `<div class="diff-minus">${escapeHtml(line)}</div>`;
+            if (line.startsWith('+')) return `<div class="diff-plus">${escapeHtml(line)}</div>`;
+            return `<div>${escapeHtml(line)}</div>`;
+          }).join('');
+          document.getElementById('diffTitle').textContent = `Diff: ${formatFilenameToHuman(f)}`;
+          document.getElementById('diffBody').innerHTML = html;
+          document.getElementById('diffModal').style.display = 'block';
+        };
+        cell.appendChild(a);
+        cell.appendChild(document.createElement('br'));
+      });
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    async function loadSnapshot(title) {
+      const resp = await fetch(`/api/snapshot?title=${encodeURIComponent(title)}`);
+      if (!resp.ok) return;
+      const text = await resp.text();
+      document.getElementById('snapshotTitle').textContent = `Latest Snapshot: ${title}`;
+      document.getElementById('snapshotBody').textContent = text;
+      document.getElementById('snapshotModal').style.display = 'block';
+    }
+
+    function showAddForm() {
+      document.getElementById('index').value = '';
+      showForm('Add URL');
+    }
+
+    function edit(idx) {
+      const entry = entries[idx];
+      document.getElementById('index').value = idx;
+      document.getElementById('title').value = entry.title;
+      document.getElementById('url').value = entry.url;
+      document.getElementById('selector').value = entry.selector || '';
+      showForm('Edit URL');
+    }
+
+    async function remove(idx) {
+      if (!confirm('Delete this entry?')) return;
+      entries.splice(idx, 1);
+      await saveConfig();
+      render();
+    }
+
+    async function saveConfig() {
+      const resp = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ urls: entries })
+      });
+      if (!resp.ok) alert('Failed to save config');
+    }
+
+    async function saveInterval() {
+      const val = document.getElementById('intervalMinutes').value;
+      const resp = await fetch('/api/interval', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ intervalMinutes: Number(val) })
+      });
+      if (!resp.ok) alert('Failed to save interval');
+    }
+
+    document.getElementById('urlForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const idx = document.getElementById('index').value;
+      const payload = {
+        title: document.getElementById('title').value,
+        url: document.getElementById('url').value,
+        selector: document.getElementById('selector').value.trim() || undefined
+      };
+      if (idx === '') {
+        entries.push(payload);
+      } else {
+        entries[idx] = payload;
+      }
+      await saveConfig();
+      hideForm();
+      render();
+    });
+
+    loadConfig();
+  </script>
+</body>
+</html>

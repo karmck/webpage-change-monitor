@@ -217,6 +217,36 @@ Useful for:
 
 ---
 
+### Web Configuration UI
+
+The project includes a lightweight web UI for managing `config.json` without editing files manually.
+
+#### Start the Web UI
+
+```bash
+npm run web-ui
+```
+
+By default, the UI runs on:
+```
+http://localhost:3000
+```
+
+#### Accessing the UI
+
+1. Start the web UI with the command above
+2. Open your browser and navigate to http://localhost:3000
+3. View, add, edit, or delete monitored URLs
+4. Adjust the polling interval
+5. Click a diff link to view the exact changes in a modal
+
+- The UI reads and writes the same `config.json` file used by the monitor
+- Changes you make are picked up on the next monitoring cycle automatically
+- Optional CSS selectors are respected for section-only monitoring
+- Diffs are color‑coded (removed = light red, added = light green)
+
+---
+
 ## 📝 Logging
 
 Main log file:

@@ -123,9 +123,9 @@ function validateConfig(config) {
   if (!config || !Array.isArray(config.urls) || config.urls.length === 0) {
     throw new Error("config.json must include a non-empty urls array");
   }
-  const intervalSeconds = Number(config.intervalSeconds ?? 300);
-  if (!Number.isFinite(intervalSeconds) || intervalSeconds < 10) {
-    throw new Error("intervalSeconds must be a number >= 10");
+  const intervalMinutes = Number(config.intervalMinutes ?? 5);
+  if (!Number.isFinite(intervalMinutes) || intervalMinutes < 1) {
+    throw new Error("intervalMinutes must be a number >= 1");
   }
   const urls = config.urls.map(entry => {
     if (typeof entry === "string") {
@@ -135,7 +135,8 @@ function validateConfig(config) {
     return { url: entry.url, title: entry.title ?? entry.url, selector: entry.selector };
   });
   return {
-    intervalSeconds,
+    intervalSeconds: intervalMinutes * 60,
+    intervalMinutes,
     userAgent: config.userAgent ?? "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
     urls
   };
@@ -254,14 +255,15 @@ async function main() {
   const state = loadState();
 
   console.error("[DEBUG] config loaded, URLs:", config.urls.length);
-  console.error("[DEBUG] intervalSeconds:", config.intervalSeconds);
+  console.error("[DEBUG] intervalSeconds:", config.intervalSeconds, `(${config.intervalMinutes} minutes)`);
 
   const runCheck = async () => {
     console.error("[DEBUG] Running check...");
-    const changed = await checkOnce(config, state);
+    const currentConfig = validateConfig(readJson(configPath));
+    const changed = await checkOnce(currentConfig, state);
     saveState(state);
     console.error("[DEBUG] Check complete, changed:", changed);
-    return changed;
+    return currentConfig;
   };
 
   if (runOnce) {
@@ -271,10 +273,23 @@ async function main() {
   }
 
   console.error("[DEBUG] Initial check");
-  await runCheck();
-  console.error("[DEBUG] Scheduling checks every", config.intervalSeconds, "seconds");
+  let currentConfig = await runCheck();
+  console.error("[DEBUG] Scheduling checks every", currentConfig.intervalMinutes, "minutes");
   console.error("[DEBUG] Initial check done. Monitoring forever. Press Ctrl+C to stop.");
-  setInterval(runCheck, config.intervalSeconds * 1000);
+  let timer = setInterval(async () => {
+    currentConfig = await runCheck();
+  }, currentConfig.intervalSeconds * 1000);
+  setInterval(() => {
+    const newConfig = validateConfig(readJson(configPath));
+    if (newConfig.intervalMinutes !== currentConfig.intervalMinutes) {
+      console.error("[DEBUG] Interval changed from", currentConfig.intervalMinutes, "to", newConfig.intervalMinutes, "minutes");
+      currentConfig = newConfig;
+      clearInterval(timer);
+      timer = setInterval(async () => {
+        currentConfig = await runCheck();
+      }, currentConfig.intervalSeconds * 1000);
+    }
+  }, 5000);
 }
 
 main().catch((error) => {
