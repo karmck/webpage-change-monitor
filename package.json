@@ -9,6 +9,9 @@
     "start:once": "node src/index.js --once"
   },
 
+  "dependencies": {
+    "jsdom": "^25.0.1"
+  },
   "engines": {
     "node": ">=18"
   }

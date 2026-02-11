@@ -5,6 +5,11 @@
     {
       "url": "https://www.google.com/",
       "title": "Google Site Monitor"
+    },
+    {
+      "url": "https://europe.wordcamp.org/2026/tickets",
+      "title": "WordCamp Tickets",
+      "selector": "#tix"
     }
   ]
 }

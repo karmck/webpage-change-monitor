@@ -132,7 +132,7 @@ function validateConfig(config) {
       return { url: entry, title: entry };
     }
     if (!entry.url) throw new Error("Each url entry must have a 'url' field");
-    return { url: entry.url, title: entry.title ?? entry.url };
+    return { url: entry.url, title: entry.title ?? entry.url, selector: entry.selector };
   });
   return {
     intervalSeconds,
@@ -159,6 +159,14 @@ async function fetchContent(url, userAgent, debugTitle) {
   return response.text();
 }
 
+async function extractBySelector(html, selector) {
+  if (!selector) return html;
+  const { JSDOM } = await import("jsdom");
+  const dom = new JSDOM(html);
+  const target = dom.window.document.querySelector(selector);
+  return target ? target.outerHTML : "";
+}
+
 async function checkOnce(config, state) {
   const now = new Date().toISOString();
   let changedCount = 0;
@@ -168,8 +176,11 @@ async function checkOnce(config, state) {
     const title = entry.title;
     console.error(`[DEBUG] Checking: [${title}] ${url}`);
     try {
-      const body = await fetchContent(url, config.userAgent, title);
+      const rawBody = await fetchContent(url, config.userAgent, title);
+      const selector = entry.selector;
+      const body = await extractBySelector(rawBody, selector);
       const digest = hashContent(body);
+      console.error(`[DEBUG] Selector: ${selector ?? "none"} Extracted length: ${body.length}`);
       const previous = state.urls[url];
       
 
