@@ -1,0 +1,15 @@
+{
+  "name": "webpage-change-monitor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Monitor webpages for content changes.",
+  "scripts": {
+    "start": "node src/index.js",
+    "start:once": "node src/index.js --once"
+  },
+
+  "engines": {
+    "node": ">=18"
+  }
+}
