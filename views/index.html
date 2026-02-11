@@ -4,53 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Webpage Change Monitor</title>
-  <style>
-    body { font-family: Arial, Helvetica, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; background: #f9f9f9; }
-    h1, h2 { color: #333; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
-    th, td { padding: 12px; border: 1px solid #ddd; text-align: left; word-wrap: break-word; }
-
-    th { background: #f2f2f2; }
-    button { padding: 8px 12px; margin: 2px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; }
-    button.edit { background: #ffc107; color: #000; }
-    button.delete { background: #dc3545; color: #fff; }
-    button.add { background: #28a745; color: #fff; }
-    .form { display: none; margin-top: 20px; padding: 20px; background: #fff; border: 1px solid #ccc; border-radius: 8px; }
-    .form input { width: 100%; margin-bottom: 10px; padding: 8px; box-sizing: border-box; }
-    .form .buttons { display: flex; gap: 10px; }
-    .cancel { background: #6c757d; color: #fff; }
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
-    .modal-content { background: #fff; margin: 2% auto; padding: 20px; width: 96%; max-width: 800px; max-height: 94%; overflow: auto; position: relative; box-sizing: border-box; }
-    .close { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; }
-    .snapshot-link { text-decoration: none; font-size: 18px; }
-    .diffs { padding: 12px; border-left: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; vertical-align: top; }
-    .diffs a { font-family: Arial, Helvetica, sans-serif; font-size: 13px; white-space: nowrap; display: block; margin-bottom: 4px; }
-    .diffs a:last-child { margin-bottom: 0; }
-    .diffs a { font-family: Arial, Helvetica, sans-serif; font-size: 13px; white-space: nowrap; display: inline-block; }
-    @media (max-width: 600px) {
-      body { margin: 10px; padding: 10px; }
-      table,ad, tbody, th, td, tr { display: block; }
-      thead tr { position: absolute; top: -9999px; left: -9999px; }
-      tr { border: 1px solid #ccc; margin-bottom: 10px; }
-      td { border: none; border-bottom: 1px solid #eee; position: relative; padding-left: 50%; }
-      td:before { position: absolute; top: 12px; left: 12px; width: 45%; padding-right: 10px; white-space: nowrap; font-weight: bold; }
-      td:nth-of-type(1):before { content: "Title"; }
-      td:nth-of-type(2):before { content: "URL"; }
-      td:nth-of-type(3):before { content: "Selector"; }
-      td:nth-of-type(4):before { content: "Diffs"; }
-      td:nth-of-type(5):before { content: "Latest Snapshot"; }
-      td:nth-of-type(6):before { content: "Actions"; }
-      .modal-content { width: 98%; margin: 2% auto; padding: 15px; }
-      button { padding: 10px 14px; font-size: 14px; }
-    }
-    .diff-minus { background: #ffcccc; }
-    .diff-plus { background: #ccffcc; }
-  </style>
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <h1>Webpage Change Monitor Configuration</h1>
+  <h1>Webpage Change Monitor</h1>
 
-  <h2>Global Settings</h2>
   <label for="intervalMinutes" style="display: block; margin-bottom: 8px;">Check Interval (minutes):</label>
   <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
     <input type="number" id="intervalMinutes" min="1" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 120px;">
@@ -65,8 +23,8 @@
         <th>Title</th>
         <th>URL</th>
         <th>CSS Selector (optional)</th>
-        <th style="width: 250px;">Diffs</th>
         <th style="width: 80px;">Latest Snapshot</th>
+        <th style="width: 250px;">Diffs</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -125,8 +83,8 @@
           <td>${entry.title}</td>
           <td><a href="${entry.url}" target="_blank" rel="noopener noreferrer">${entry.url}</a></td>
           <td>${entry.selector || ''}</td>
-          <td class="diffs" id="diffs-${idx}"></td>
           <td><a href="#" class="snapshot-link" onclick="return loadSnapshot('${entry.title}');">&#128190;</a></td>
+          <td class="diffs" id="diffs-${idx}"></td>
           <td>
             <button class="edit" onclick="edit(${idx})">Edit</button>
             <button class="delete" onclick="remove(${idx})">Delete</button>
@@ -190,7 +148,6 @@
           document.getElementById('diffModal').style.display = 'block';
         };
         cell.appendChild(a);
-        cell.appendChild(document.createElement('br'));
       });
     }
 

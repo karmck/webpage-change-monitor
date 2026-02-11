@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { serveFile } from "./utils.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const publicDir = path.resolve(__dirname, "..", "public");
 const rootDir = path.resolve(__dirname, "..");
 const configPath = process.env.WEBPAGE_MONITOR_CONFIG ?? path.join(rootDir, "config.json");
 
@@ -19,6 +20,9 @@ function handler(req, res) {
   const url = new URL(req.url, "http://localhost");
   if (req.method === "GET" && url.pathname === "/") {
     return serveFile(res, path.join(__dirname, "..", "views", "index.html"), "text/html");
+  }
+  if (req.method === "GET" && url.pathname === "/styles.css") {
+    return serveFile(res, path.join(publicDir, "styles.css"), "text/css");
   }
   if (req.method === "GET" && url.pathname === "/api/config") {
     const cfg = readConfig();

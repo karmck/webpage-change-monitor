@@ -164,8 +164,10 @@ async function extractBySelector(html, selector) {
   if (!selector) return html;
   const { JSDOM } = await import("jsdom");
   const dom = new JSDOM(html);
-  const target = dom.window.document.querySelector(selector);
-  return target ? target.outerHTML : "";
+  const targets = dom.window.document.querySelectorAll(selector);
+  if (!targets.length) return "";
+  // Return concatenated HTML of all matching elements
+  return Array.from(targets).map(el => el.outerHTML).join("\n");
 }
 
 async function checkOnce(config, state) {
