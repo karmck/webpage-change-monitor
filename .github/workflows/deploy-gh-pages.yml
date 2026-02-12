@@ -19,6 +19,25 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+          fetch-depth: 0
+
+      - name: Restore previous data/logs/config into public
+        run: |
+          mkdir -p public
+          if [ -d gh-pages/data ]; then
+            mkdir -p public/data
+            rsync -a gh-pages/data/ public/data/
+          fi
+          if [ -d gh-pages/logs ]; then
+            mkdir -p public/logs
+            rsync -a gh-pages/logs/ public/logs/
+          fi
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
