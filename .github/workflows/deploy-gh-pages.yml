@@ -26,16 +26,16 @@ jobs:
           path: gh-pages
           fetch-depth: 0
 
-      - name: Restore previous data/logs/config into public
+      - name: Restore previous data and logs folders from gh-pages into the runner's workspace
         run: |
-          mkdir -p public
+          mkdir -p data
           if [ -d gh-pages/data ]; then
-            mkdir -p public/data
-            rsync -a gh-pages/data/ public/data/
+            mkdir -p data
+            rsync -a gh-pages/data/ data/
           fi
           if [ -d gh-pages/logs ]; then
-            mkdir -p public/logs
-            rsync -a gh-pages/logs/ public/logs/
+            mkdir -p logs
+            rsync -a gh-pages/logs/ logs/
           fi
 
       - name: Setup Node.js
