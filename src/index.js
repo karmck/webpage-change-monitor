@@ -8,6 +8,7 @@ const configPath =
   process.env.WEBPAGE_MONITOR_CONFIG ?? path.join(rootDir, "config.json");
 const statePath = path.join(rootDir, "data", "state.json");
 const logPath = path.join(rootDir, "logs", "changes.log");
+const publicDir = path.join(rootDir, "public");
 
 const args = new Set(process.argv.slice(2));
 const runOnce = args.has("--once");
@@ -65,6 +66,73 @@ function diffPathForUrl(title) {
 
 function consoleLog(line) {
   console.log(line);
+}
+
+// Publish helpers for static UI
+function publishConfig() {
+  try {
+    fs.mkdirSync(publicDir, { recursive: true });
+    fs.copyFileSync(configPath, path.join(publicDir, "config.json"));
+  } catch (e) {}
+}
+
+function writeIndexJson(dir, key, list) {
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+    const out = {};
+    out[key] = list;
+    fs.writeFileSync(path.join(dir, "index.json"), JSON.stringify(out, null, 2), "utf-8");
+  } catch (e) {}
+}
+
+function publishTitleAssets(title) {
+  try {
+    const sanitized = title.replace(/[^a-zA-Z0-9]/g, "_");
+    // snapshots
+    const srcSnapDir = path.join(rootDir, "data", sanitized);
+    const dstSnapDir = path.join(publicDir, "data", sanitized);
+    const snaps = [];
+    if (fs.existsSync(srcSnapDir)) {
+      fs.mkdirSync(dstSnapDir, { recursive: true });
+      const files = fs.readdirSync(srcSnapDir).filter(f => f.endsWith('.html'));
+      files.forEach(f => {
+        const src = path.join(srcSnapDir, f);
+        const dst = path.join(dstSnapDir, f);
+        try { fs.copyFileSync(src, dst); } catch (e) {}
+        snaps.push(f);
+      });
+      snaps.sort().reverse();
+      writeIndexJson(dstSnapDir, 'snapshots', snaps);
+    }
+
+    // diffs
+    const srcDiffDir = path.join(rootDir, "logs", sanitized);
+    const dstDiffDir = path.join(publicDir, "logs", sanitized);
+    const diffs = [];
+    if (fs.existsSync(srcDiffDir)) {
+      fs.mkdirSync(dstDiffDir, { recursive: true });
+      const files = fs.readdirSync(srcDiffDir).filter(f => f.startsWith('diff_') && f.endsWith('.txt'));
+      files.forEach(f => {
+        const src = path.join(srcDiffDir, f);
+        const dst = path.join(dstDiffDir, f);
+        try { fs.copyFileSync(src, dst); } catch (e) {}
+        diffs.push(f);
+      });
+      diffs.sort().reverse();
+      writeIndexJson(dstDiffDir, 'diffs', diffs);
+    }
+  } catch (e) {}
+}
+
+function publishAllFromConfig(cfg) {
+  try {
+    publishConfig();
+    if (!cfg || !Array.isArray(cfg.urls)) return;
+    for (const entry of cfg.urls) {
+      const title = typeof entry === 'string' ? entry : (entry.title ?? entry.url);
+      publishTitleAssets(title);
+    }
+  } catch (e) {}
 }
 
 function simpleUnifiedDiff(oldStr, newStr) {
@@ -191,6 +259,7 @@ async function checkOnce(config, state) {
         // First time: snapshot and log NEW
         const snapshotFile = snapshotPathForUrl(title);
         writeSnapshot(body, snapshotFile);
+        try { publishTitleAssets(title); } catch (e) {}
         state.urls[url] = { hash: digest, lastCheckedAt: now, lastChangedAt: now, lastSnapshot: snapshotFile };
         appendLog(`${now} NEW [${title}] ${url} snapshot=${snapshotFile}`);
         continue;
@@ -210,6 +279,7 @@ async function checkOnce(config, state) {
           diffFile = diffPathForUrl(title);
           fs.mkdirSync(path.dirname(diffFile), { recursive: true });
           fs.writeFileSync(diffFile, diffLines.join("\n"), "utf-8");
+          try { publishTitleAssets(title); } catch (e) {}
 
           const logMsg = `${now} CHANGED [${title}] ${url} previous=${previousSnapshot} current=${snapshotFile} diff=${diffFile}`;
           appendLog(logMsg);
@@ -254,6 +324,7 @@ async function main() {
   }
 
   const config = validateConfig(readJson(configPath));
+  try { publishAllFromConfig(config); } catch (e) {}
   const state = loadState();
 
   console.error("[DEBUG] config loaded, URLs:", config.urls.length);
@@ -264,6 +335,7 @@ async function main() {
     const currentConfig = validateConfig(readJson(configPath));
     const changed = await checkOnce(currentConfig, state);
     saveState(state);
+    try { publishAllFromConfig(currentConfig); } catch (e) {}
     console.error("[DEBUG] Check complete, changed:", changed);
     return currentConfig;
   };

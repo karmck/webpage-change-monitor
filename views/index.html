@@ -59,7 +59,7 @@
     <div class="modal-content">
       <span class="close" onclick="closeSnapshotModal()">&times;</span>
       <h2 id="snapshotTitle">Snapshot</h2>
-      <pre id="snapshotBody" style="background: #f4f4f4; padding: 10px; white-space: pre-wrap; word-break: break-word; max-height: 70vh; overflow-y: auto;"></pre>
+      <div id="snapshotBody" style="background: #f4f4f4; padding: 10px; max-height: 70vh; overflow-y: auto; word-break: break-word;"></div>
     </div>
   </div>
 
@@ -145,10 +145,12 @@
       }
       // Show latest three, most recent on top
       const latest = files.sort().reverse().slice(0, 3);
-      latest.forEach(f => {
+      latest.forEach((f, i) => {
         const a = document.createElement('a');
         a.href = '#';
         a.textContent = formatFilenameToHuman(f);
+        // Bold the newest (top) entry
+        if (i === 0) a.style.fontWeight = '700';
         a.onclick = async e => {
           e.preventDefault();
           const r = await fetch(`/api/diff-content?title=${encodeURIComponent(title)}&file=${encodeURIComponent(f)}`);
@@ -178,7 +180,7 @@
       if (!resp.ok) return;
       const text = await resp.text();
       document.getElementById('snapshotTitle').textContent = `Latest Snapshot: ${title}`;
-      document.getElementById('snapshotBody').textContent = text;
+      document.getElementById('snapshotBody').innerHTML = text;
       document.getElementById('snapshotModal').style.display = 'block';
       document.body.style.overflow = 'hidden';
     }

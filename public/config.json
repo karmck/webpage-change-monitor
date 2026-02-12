@@ -1,0 +1,20 @@
+{
+  "intervalMinutes": 1,
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+  "urls": [
+    {
+      "url": "https://europe.wordcamp.org/2026/tickets/",
+      "title": "WordCamp Tickets",
+      "selector": "#tix"
+    },
+    {
+      "title": "RLSBB 4K",
+      "url": "https://log.rlsbb.to/category/movies/4k-uhd/",
+      "selector": ".post-list"
+    },
+    {
+      "title": "ElAmigos",
+      "url": "https://elamigos.site/"
+    }
+  ]
+}

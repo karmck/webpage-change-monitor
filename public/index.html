@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Webpage Change Monitor</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    /* small override to hide editing controls in static UI */
+    button.add, button.edit, button.delete { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Webpage Change Monitor</h1>
+  <div id="status" style="color:#a00; margin-bottom:8px;"></div>
+
+  <label for="intervalMinutes" style="display: block; margin-bottom: 8px;">Check Interval (minutes):</label>
+  <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+    <input type="number" id="intervalMinutes" min="1" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 120px;" disabled>
+    <button onclick="alert('Read-only')">Save Interval</button>
+  </div>
+
+  <h2>Monitored URLs</h2>
+
+  <table id="urlTable">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>URL</th>
+        <th>CSS Selector (optional)</th>
+        <th style="width: 80px;">Latest Snapshot</th>
+        <th style="width: 250px;">Diffs</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="urlList"></tbody>
+  </table>
+
+  <button class="add" onclick="alert('Read-only')">+ Add URL</button>
+
+  <div id="diffModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeDiff()">&times;</span>
+      <h2 id="diffTitle">Diff</h2>
+      <pre id="diffBody" style="background: #f4f4f4; padding: 10px; white-space: pre-wrap; word-break: break-word;"></pre>
+    </div>
+  </div>
+
+  <div id="snapshotModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeSnapshot()">&times;</span>
+      <h2 id="snapshotTitle">Snapshot</h2>
+      <div id="snapshotBody" style="background: #fff; padding: 10px; max-height: 70vh; overflow-y: auto; word-break: break-word;"></div>
+    </div>
+  </div>
+
+  <script>
+    let entries = [];
+
+    async function tryFetchConfig(paths) {
+      for (const p of paths) {
+        try {
+          const resp = await fetch(p);
+          if (!resp.ok) { console.warn('no config at', p, resp.status); continue; }
+          const cfg = await resp.json();
+          return cfg;
+        } catch (e) {
+          console.warn('fetch failed', p, e && e.message ? e.message : e);
+        }
+      }
+      return null;
+    }
+
+    async function loadConfig() {
+      const paths = ['/config.json', 'config.json', './config.json'];
+      const cfg = await tryFetchConfig(paths);
+      if (!cfg) {
+        document.getElementById('status').textContent = 'Could not load config.json — check server or run the monitor to publish files.';
+        return;
+      }
+      entries = cfg.urls || [];
+      document.getElementById('intervalMinutes').value = cfg.intervalMinutes || '';
+      if (!entries.length) document.getElementById('status').textContent = 'No URLs configured.';
+      render();
+    }
+
+    function render() {
+      const tbody = document.getElementById('urlList');
+      tbody.innerHTML = '';
+      entries.forEach((entry, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${entry.title}</td>
+          <td><a href="${entry.url}" target="_blank" rel="noopener noreferrer">${entry.url}</a></td>
+          <td>${entry.selector || ''}</td>
+          <td><a href="#" class="snapshot-link" onclick="return loadSnapshot('${entry.title}');">&#128190;</a></td>
+          <td class="diffs" id="diffs-${idx}"></td>
+          <td>
+            <button class="edit" onclick="alert('Read-only')">Edit</button>
+            <button class="delete" onclick="alert('Read-only')">Delete</button>
+          </td>`;
+        tbody.appendChild(tr);
+        loadDiffs(idx, entry.title);
+      });
+    }
+
+    function formatFilenameToHuman(f) {
+      const m = f.match(/(diff_.*_(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z)\.txt)/);
+      if (!m) return f;
+      const ts = m[2];
+      const dt = new Date(ts.replace(/-(\d{2})-(\d{2})-(\d{3})Z/, `:$1:$2.$3Z`));
+      return dt.toLocaleString('en-MT', { timeZone: 'Europe/Malta', dateStyle: 'medium', timeStyle: 'medium' });
+    }
+
+    function sanitizeTitle(title) {
+      return title.replace(/[^a-zA-Z0-9]/g, '_');
+    }
+
+    async function loadDiffs(idx, title) {
+      const sanitized = sanitizeTitle(title);
+      const cell = document.getElementById(`diffs-${idx}`);
+      try {
+        const resp = await fetch(`/logs/${encodeURIComponent(sanitized)}/index.json`);
+        if (!resp.ok) { cell.innerHTML = ''; return; }
+        const data = await resp.json();
+        const files = data.diffs || [];
+        if (!files.length) { cell.innerHTML = ''; return; }
+        const latest = files.slice().sort().reverse().slice(0,3);
+        latest.forEach((f,i) => {
+          const a = document.createElement('a');
+          a.href = '#';
+          a.textContent = formatFilenameToHuman(f);
+          if (i === 0) a.style.fontWeight = '700';
+          a.onclick = async e => {
+            e.preventDefault();
+            const r = await fetch(`/logs/${encodeURIComponent(sanitized)}/${encodeURIComponent(f)}`);
+            if (!r.ok) return;
+            const text = await r.text();
+            const html = text.split('\n').map(line => {
+              if (line.startsWith('-')) return `<div class="diff-minus">${escapeHtml(line)}</div>`;
+              if (line.startsWith('+')) return `<div class="diff-plus">${escapeHtml(line)}</div>`;
+              return `<div>${escapeHtml(line)}</div>`;
+            }).join('');
+            document.getElementById('diffTitle').textContent = `Diff: ${formatFilenameToHuman(f)}`;
+            document.getElementById('diffBody').innerHTML = html;
+            document.getElementById('diffModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+          };
+          cell.appendChild(a);
+        });
+      } catch (e) { cell.innerHTML = ''; }
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    async function loadSnapshot(title) {
+      const sanitized = sanitizeTitle(title);
+      try {
+        const idxResp = await fetch(`/data/${encodeURIComponent(sanitized)}/index.json`);
+        if (!idxResp.ok) return false;
+        const idx = await idxResp.json();
+        const snaps = idx.snapshots || [];
+        if (!snaps.length) return false;
+        const latest = snaps[0];
+        const r = await fetch(`/data/${encodeURIComponent(sanitized)}/${encodeURIComponent(latest)}`);
+        if (!r.ok) return false;
+        const text = await r.text();
+        document.getElementById('snapshotTitle').textContent = `Latest Snapshot: ${title}`;
+        // Render snapshot HTML
+        document.getElementById('snapshotBody').innerHTML = text;
+        document.getElementById('snapshotModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        return false;
+      } catch (e) { return false; }
+    }
+
+    function closeDiff() { document.getElementById('diffModal').style.display = 'none'; document.getElementById('diffBody').innerHTML = ''; document.body.style.overflow = ''; }
+    function closeSnapshot() { document.getElementById('snapshotModal').style.display = 'none'; document.getElementById('snapshotBody').textContent = ''; document.body.style.overflow = ''; }
+
+    // Disable editing actions (read-only)
+    function showAddForm() { alert('Read-only'); }
+    function edit() { alert('Read-only'); }
+    async function remove() { alert('Read-only'); }
+    async function saveConfig() { alert('Read-only'); }
+    async function saveInterval() { alert('Read-only'); }
+
+    loadConfig();
+  </script>
+</body>
+</html>
