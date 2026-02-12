@@ -127,6 +127,22 @@ function publishTitleAssets(title) {
 function publishAllFromConfig(cfg) {
   try {
     publishConfig();
+    // Publish data state file so gh-pages retains hashes between runs
+    try {
+      if (fs.existsSync(statePath)) {
+        const dstStateDir = path.join(publicDir, 'data');
+        fs.mkdirSync(dstStateDir, { recursive: true });
+        fs.copyFileSync(statePath, path.join(dstStateDir, 'state.json'));
+      }
+    } catch (e) {}
+    // Publish logs changes files so gh-pages retains hashes between runs
+    try {
+      if (fs.existsSync(logPath)) {
+        const dstLogDir = path.join(publicDir, 'logs');
+        fs.mkdirSync(dstLogDir, { recursive: true });
+        fs.copyFileSync(logPath, path.join(dstLogDir, 'changes.log'));
+      }
+    } catch (e) {}
     if (!cfg || !Array.isArray(cfg.urls)) return;
     for (const entry of cfg.urls) {
       const title = typeof entry === 'string' ? entry : (entry.title ?? entry.url);
