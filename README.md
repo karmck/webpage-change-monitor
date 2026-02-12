@@ -1,6 +1,6 @@
-# 🕵️ Webpage Monitor
+# 🕵️ Webpage Change Monitor
 
-A lightweight, file-based Node.js tool that monitors webpages for content changes, stores HTML snapshots, generates diffs, and maintains structured logs.
+A lightweight, file-based Node.js tool that monitors webpages for content changes, stores HTML snapshots, generates diffs, maintains structured logs, and can publish a static site (in `public/`) suitable for GitHub Pages.
 
 Designed for simple, self-hosted monitoring without external services.
 
@@ -20,6 +20,7 @@ Designed for simple, self-hosted monitoring without external services.
 - Custom User-Agent support
 - One-time execution mode (`--once`)
 - Zero database required (file-based state)
+- Optional static publishing to `public/` for a read-only UI
 
 ---
 
@@ -153,16 +154,30 @@ No database required.
 
 ```
 .
-├── index.js
-├── config.json
+├── src/index.js                # Monitor service (ESM)
+├── src/web-ui.js               # Lightweight HTTP server for local UI
+├── config.json                 # Monitor configuration
 ├── data/
-│   ├── state.json
+│   ├── state.json              # Hashes + last snapshot metadata
 │   └── <sanitized_title>/
-│       ├── snapshot_<timestamp>.html
+│       └── <title>_<timestamp>.html
 ├── logs/
-│   ├── changes.log
+│   ├── changes.log             # Rolling 24h log
 │   └── <sanitized_title>/
-│       ├── diff_<timestamp>.txt
+│       └── diff_<title>_<timestamp>.txt
+└── public/                     # Static, read-only site (published to gh-pages)
+  ├── index.html              # Static UI
+  ├── styles.css
+  ├── config.json             # Copied from project root by the monitor
+  ├── data/
+  │   ├── state.json          # Copied from data/state.json
+  │   └── <sanitized_title>/
+  │       ├── <title>_<timestamp>.html
+  │       └── index.json      # { "snapshots": [ ... ] }
+  └── logs/
+    ├── changes.log         # Copied from logs/changes.log
+    └── <sanitized_title>/
+      └── index.json      # { "diffs": [ ... ] }
 ```
 
 ---
@@ -313,6 +328,40 @@ WEBPAGE_MONITOR_CONFIG=/custom/path/config.json node index.js
 
 ---
 
+## 📤 Static Publishing (public/)
+
+When the monitor runs, it also publishes a read-only site into `public/` so you can host the latest results on GitHub Pages:
+
+- Copies root `config.json` to `public/config.json`
+- Copies latest snapshots and emits `public/data/<title>/index.json` with a list of snapshots
+- Copies latest diffs and emits `public/logs/<title>/index.json` with a list of diffs
+- Copies `data/state.json` to `public/data/state.json`
+- Copies `logs/changes.log` to `public/logs/changes.log`
+
+Frontend notes:
+- `public/index.html` uses relative paths (e.g. `data/...`, `logs/...`) so it works at `https://<user>.github.io/<repo>/`.
+- The UI is read-only; it displays diffs/snapshots and interval but does not persist edits.
+
+---
+
+## 🧰 GitHub Pages via GitHub Actions
+
+Summary:
+- Restores `data/` and `logs/` from `gh-pages` into the runner to retain `state.json`, snapshots, and diffs.
+- Runs a one-time check (`npm run start:once`) to update snapshots/diffs and publish the static UI into `public/`.
+- Deploys `public/` to `gh-pages` with `JamesIves/github-pages-deploy-action@v4` and `CLEAN: true` to remove stale files.
+- `config.json` is not restored from `gh-pages`; the repo (or `WEBPAGE_MONITOR_CONFIG`) is the source of truth and is re-published each run.
+- See `.github/workflows/deploy-gh-pages.yml` for details.
+
+Manual alternative (local):
+
+```bash
+npm run start:once
+npx gh-pages -d public
+```
+
+---
+
 ## 📌 Example Use Cases
 
 - Monitor pricing changes
@@ -322,51 +371,3 @@ WEBPAGE_MONITOR_CONFIG=/custom/path/config.json node index.js
 - Monitor specific DOM elements only
 - Lightweight alternative to commercial monitoring services
 - CI-based webpage regression monitoring
-
----
-
-## 📄 License
-
-MIT License  
-(Replace with your preferred license if different)
-
----
-
-## 💡 Why This Tool?
-
-- No SaaS dependency
-- No third-party API
-- No database
-- Minimal footprint
-- Fully self-contained
-- Works in cron, Docker, or CI
-- Transparent file-based auditing
-
----
-
-## 🤝 Contributing
-
-Pull requests are welcome.  
-If you plan to add features (notifications, retries, email alerts, etc.), please open an issue first to discuss.
-
----
-
-## 🧩 Future Enhancements (Ideas)
-
-- Email or Slack notifications
-- Webhook integration
-- Retry with exponential backoff
-- Content normalization (ignore timestamps, dynamic tokens)
-- HTML → text diff mode
-- Docker image
-- GitHub Actions template
-
----
-
-## 📬 Questions?
-
-Open an issue in the repository and describe your use case.
-
----
-
-**Simple. Transparent. Self-hosted.**

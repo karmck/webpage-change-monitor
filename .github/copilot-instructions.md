@@ -1,7 +1,7 @@
 # Webpage Change Monitor - AI Agent Instructions
 
 ## Project Overview
-A lightweight, file-based Node.js monitoring tool that watches URLs for content changes, stores HTML snapshots, generates unified diffs, and provides a web UI for configuration and viewing changes. **Zero database required** — all state is file-based.
+A lightweight, file-based Node.js monitoring tool that watches URLs for content changes, stores HTML snapshots, generates unified diffs, and publishes a static UI (in `public/`) for read-only viewing. **Zero database required** — all state is file-based.
 
 ## Core Architecture
 
@@ -14,7 +14,7 @@ A lightweight, file-based Node.js monitoring tool that watches URLs for content 
 **Title Sanitization**: All titles are sanitized by replacing non-alphanumeric characters with underscores (`/[^a-zA-Z0-9]/g` → `_`) for file names.
 
 ### Main Components
-1. **Monitor Service** (`src/index.js`): Polls URLs on interval, detects changes via SHA-256, stores snapshots/diffs, auto-cleanup
+1. **Monitor Service** (`src/index.js`): Polls URLs on interval, detects changes via SHA-256, stores snapshots/diffs, auto-cleanup, and publishes a static bundle to `public/` (config, snapshots/diffs indexes, `data/state.json`, `logs/changes.log`).
 2. **Web UI** (`src/web-ui.js`): Lightweight HTTP server (Node 18+, no framework dependencies)
 3. **API Routes** (`routes/config.js`): Handles GET/POST for config, diffs, snapshots, intervals
 4. **Utilities** (`routes/utils.js`): File serving and common helpers
@@ -26,6 +26,8 @@ A lightweight, file-based Node.js monitoring tool that watches URLs for content 
 | One-time check | `npm run start:once` |
 | Web UI only | `npm run web-ui` (PORT defaults to 3000) |
 | Override config | `WEBPAGE_MONITOR_CONFIG=/path/config.json npm start` |
+| Deploy static UI (GH Actions) | Workflow `.github/workflows/deploy-gh-pages.yml` |
+| Manual publish (local) | `npx gh-pages -d public` |
 
 ## Code Patterns & Conventions
 
@@ -56,6 +58,19 @@ A lightweight, file-based Node.js monitoring tool that watches URLs for content 
 - **Modals**: Both `#diffModal` and `#snapshotModal` use overlay background; clicking outside or X button closes
 - **Recent links**: Shows last 3 diffs per URL with human-readable timestamps
 - **UI state**: Opened modals prevent background scroll (body overflow: hidden)
+- **Paths**: All asset/data paths are relative (e.g. `data/...`, `logs/...`) for GitHub Pages subpath hosting
+
+### Static Publishing (public/)
+- `publishConfig()` copies the repo `config.json` into `public/config.json`
+- `publishTitleAssets(title)` copies snapshots/diffs into `public/data/<title>/` and `public/logs/<title>/` and writes `index.json` listings used by the UI
+- `publishAllFromConfig()` additionally copies `data/state.json` → `public/data/state.json` and `logs/changes.log` → `public/logs/changes.log`
+
+### GitHub Actions (deploy-gh-pages.yml)
+- `permissions: contents: write` so `github-actions[bot]` can push to `gh-pages`
+- Checks out `gh-pages` into `gh-pages/`, restores `data/` and `logs/` to the workspace before running the monitor (preserves `state.json`, snapshots, diffs)
+- Runs `npm ci` then `npm run start:once` to populate `public/`
+- Deploys with `JamesIves/github-pages-deploy-action@v4` using `FOLDER: public` and `CLEAN: true` to remove stale files
+- Does not restore `config.json` from `gh-pages`; the repo (or `WEBPAGE_MONITOR_CONFIG`) remains the source of truth and is republished each run
 
 ## Common Modification Points
 
@@ -69,7 +84,7 @@ A lightweight, file-based Node.js monitoring tool that watches URLs for content 
 - **Logs**: `trimLogFile()` enforces 24-hour cutoff
 
 ### Frontend Changes
-- View template: `views/index.html` (loads config via `/api/config`, renders table dynamically)
+- View templates: `views/index.html` (local server) and `public/index.html` (static UI, loads config from `public/config.json`)
 - Styles: `public/styles.css` (includes mobile media queries)
 - Close button styling: Fixed position on desktop, sticky on mobile (recent enhancement)
 
