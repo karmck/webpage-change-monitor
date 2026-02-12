@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Webpage Change Monitor</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="styles.css">
   <style>
     /* small override to hide editing controls in static UI */
     button.add, button.edit, button.delete { display: none; }
@@ -72,7 +72,7 @@
     }
 
     async function loadConfig() {
-      const paths = ['/config.json', 'config.json', './config.json'];
+      const paths = ['config.json', './config.json'];
       const cfg = await tryFetchConfig(paths);
       if (!cfg) {
         document.getElementById('status').textContent = 'Could not load config.json — check server or run the monitor to publish files.';
@@ -120,7 +120,7 @@
       const sanitized = sanitizeTitle(title);
       const cell = document.getElementById(`diffs-${idx}`);
       try {
-        const resp = await fetch(`/logs/${encodeURIComponent(sanitized)}/index.json`);
+        const resp = await fetch(`logs/${encodeURIComponent(sanitized)}/index.json`);
         if (!resp.ok) { cell.innerHTML = ''; return; }
         const data = await resp.json();
         const files = data.diffs || [];
@@ -133,7 +133,7 @@
           if (i === 0) a.style.fontWeight = '700';
           a.onclick = async e => {
             e.preventDefault();
-            const r = await fetch(`/logs/${encodeURIComponent(sanitized)}/${encodeURIComponent(f)}`);
+            const r = await fetch(`logs/${encodeURIComponent(sanitized)}/${encodeURIComponent(f)}`);
             if (!r.ok) return;
             const text = await r.text();
             const html = text.split('\n').map(line => {
@@ -160,13 +160,13 @@
     async function loadSnapshot(title) {
       const sanitized = sanitizeTitle(title);
       try {
-        const idxResp = await fetch(`/data/${encodeURIComponent(sanitized)}/index.json`);
+        const idxResp = await fetch(`data/${encodeURIComponent(sanitized)}/index.json`);
         if (!idxResp.ok) return false;
         const idx = await idxResp.json();
         const snaps = idx.snapshots || [];
         if (!snaps.length) return false;
         const latest = snaps[0];
-        const r = await fetch(`/data/${encodeURIComponent(sanitized)}/${encodeURIComponent(latest)}`);
+        const r = await fetch(`data/${encodeURIComponent(sanitized)}/${encodeURIComponent(latest)}`);
         if (!r.ok) return false;
         const text = await r.text();
         document.getElementById('snapshotTitle').textContent = `Latest Snapshot: ${title}`;
