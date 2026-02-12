@@ -28,7 +28,7 @@
         <th>Title</th>
         <th>URL</th>
         <th>CSS Selector (optional)</th>
-        <th style="width: 80px;">Latest Snapshot</th>
+        <th style="width: 180px;">Latest Snapshot</th>
         <th style="width: 250px;">Diffs</th>
         <th>Actions</th>
       </tr>
@@ -93,7 +93,10 @@
           <td>${entry.title}</td>
           <td><a href="${entry.url}" target="_blank" rel="noopener noreferrer">${entry.url}</a></td>
           <td>${entry.selector || ''}</td>
-          <td><a href="#" class="snapshot-link" onclick="return loadSnapshot('${entry.title}');">&#128190;</a></td>
+          <td>
+            <a href="#" class="snapshot-link" onclick="return loadSnapshot('${entry.title}');">&#128190;</a>
+            <span id="snapshot-date-${idx}" style="margin-left:6px; font-size:12px; color:#555;"></span>
+          </td>
           <td class="diffs" id="diffs-${idx}"></td>
           <td>
             <button class="edit" onclick="alert('Read-only')">Edit</button>
@@ -101,6 +104,7 @@
           </td>`;
         tbody.appendChild(tr);
         loadDiffs(idx, entry.title);
+        loadSnapshotInfo(idx, entry.title);
       });
     }
 
@@ -114,6 +118,34 @@
 
     function sanitizeTitle(title) {
       return title.replace(/[^a-zA-Z0-9]/g, '_');
+    }
+
+    function formatSnapshotTimestamp(filename) {
+      const match = filename.match(/(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z)/);
+      if (!match) return '';
+      const iso = match[1].replace(/-(\d{2})-(\d{2})-(\d{3})Z/, ':$1:$2.$3Z');
+      const date = new Date(iso);
+      return date.toLocaleString('en-MT', {
+        timeZone: 'Europe/Malta',
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      });
+    }
+
+    async function loadSnapshotInfo(idx, title) {
+      const sanitized = sanitizeTitle(title);
+      const span = document.getElementById(`snapshot-date-${idx}`);
+      if (!span) return;
+      try {
+        const resp = await fetch(`data/${encodeURIComponent(sanitized)}/index.json`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const snaps = (data.snapshots || []).slice().sort().reverse();
+        if (!snaps.length) return;
+        span.textContent = formatSnapshotTimestamp(snaps[0]);
+      } catch (e) {
+        return;
+      }
     }
 
     async function loadDiffs(idx, title) {
@@ -170,8 +202,19 @@
         if (!r.ok) return false;
         const text = await r.text();
         document.getElementById('snapshotTitle').textContent = `Latest Snapshot: ${title}`;
-        // Render snapshot HTML
-        document.getElementById('snapshotBody').innerHTML = text;
+        // Render snapshot inside isolated iframe to prevent CSS/layout spill
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = '75vh';
+        iframe.style.border = '0';
+        iframe.style.background = '#fff';
+        iframe.setAttribute('sandbox', '');
+        iframe.srcdoc = text;
+
+        const container = document.getElementById('snapshotBody');
+        container.innerHTML = '';
+        container.appendChild(iframe);
+
         document.getElementById('snapshotModal').style.display = 'block';
         document.body.style.overflow = 'hidden';
         return false;
@@ -179,7 +222,25 @@
     }
 
     function closeDiff() { document.getElementById('diffModal').style.display = 'none'; document.getElementById('diffBody').innerHTML = ''; document.body.style.overflow = ''; }
-    function closeSnapshot() { document.getElementById('snapshotModal').style.display = 'none'; document.getElementById('snapshotBody').textContent = ''; document.body.style.overflow = ''; }
+    function closeSnapshot() {
+      document.getElementById('snapshotModal').style.display = 'none';
+      document.getElementById('snapshotBody').innerHTML = '';
+      document.body.style.overflow = '';
+    }
+
+    // Close modal when clicking outside modal-content
+    window.addEventListener('click', function (event) {
+      const diffModal = document.getElementById('diffModal');
+      const snapshotModal = document.getElementById('snapshotModal');
+
+      if (event.target === diffModal) {
+        closeDiff();
+      }
+
+      if (event.target === snapshotModal) {
+        closeSnapshot();
+      }
+    });
 
     // Disable editing actions (read-only)
     function showAddForm() { alert('Read-only'); }
