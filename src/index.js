@@ -88,37 +88,57 @@ function writeIndexJson(dir, key, list) {
 function publishTitleAssets(title) {
   try {
     const sanitized = title.replace(/[^a-zA-Z0-9]/g, "_");
-    // snapshots
+    // snapshots: copy then trim public copies to latest 3
     const srcSnapDir = path.join(rootDir, "data", sanitized);
     const dstSnapDir = path.join(publicDir, "data", sanitized);
-    const snaps = [];
     if (fs.existsSync(srcSnapDir)) {
       fs.mkdirSync(dstSnapDir, { recursive: true });
       const files = fs.readdirSync(srcSnapDir).filter(f => f.endsWith('.html'));
+      const snapObjs = [];
       files.forEach(f => {
         const src = path.join(srcSnapDir, f);
         const dst = path.join(dstSnapDir, f);
         try { fs.copyFileSync(src, dst); } catch (e) {}
-        snaps.push(f);
+        try {
+          const mtime = fs.statSync(path.join(dst)).mtime;
+          snapObjs.push({ name: f, path: dst, mtime });
+        } catch (e) {
+          snapObjs.push({ name: f, path: dst, mtime: new Date(0) });
+        }
       });
-      snaps.sort().reverse();
+      // sort newest first, keep only the latest 3 in public
+      snapObjs.sort((a, b) => b.mtime - a.mtime);
+      for (let i = 3; i < snapObjs.length; i++) {
+        try { fs.unlinkSync(snapObjs[i].path); } catch (e) {}
+      }
+      const snaps = snapObjs.slice(0, 3).map(s => s.name);
       writeIndexJson(dstSnapDir, 'snapshots', snaps);
     }
 
-    // diffs
+    // diffs: copy then trim public copies to latest 3
     const srcDiffDir = path.join(rootDir, "logs", sanitized);
     const dstDiffDir = path.join(publicDir, "logs", sanitized);
-    const diffs = [];
     if (fs.existsSync(srcDiffDir)) {
       fs.mkdirSync(dstDiffDir, { recursive: true });
       const files = fs.readdirSync(srcDiffDir).filter(f => f.startsWith('diff_') && f.endsWith('.txt'));
+      const diffObjs = [];
       files.forEach(f => {
         const src = path.join(srcDiffDir, f);
         const dst = path.join(dstDiffDir, f);
         try { fs.copyFileSync(src, dst); } catch (e) {}
-        diffs.push(f);
+        try {
+          const mtime = fs.statSync(path.join(dst)).mtime;
+          diffObjs.push({ name: f, path: dst, mtime });
+        } catch (e) {
+          diffObjs.push({ name: f, path: dst, mtime: new Date(0) });
+        }
       });
-      diffs.sort().reverse();
+      // sort newest first, keep only the latest 3 in public
+      diffObjs.sort((a, b) => b.mtime - a.mtime);
+      for (let i = 3; i < diffObjs.length; i++) {
+        try { fs.unlinkSync(diffObjs[i].path); } catch (e) {}
+      }
+      const diffs = diffObjs.slice(0, 3).map(d => d.name);
       writeIndexJson(dstDiffDir, 'diffs', diffs);
     }
   } catch (e) {}
