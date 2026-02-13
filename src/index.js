@@ -278,21 +278,60 @@ function validateConfig(config) {
 }
 
 async function fetchContent(url, userAgent, debugTitle) {
+  // Try lightweight fetch first
   const ts = Date.now();
   const u = new URL(url);
   u.searchParams.set("_t", ts.toString());
   console.error(`[DEBUG] Request: [${debugTitle}] ${u.toString()} User-Agent: ${userAgent}`);
-  const response = await fetch(u.toString(), {
-    headers: {
-      "user-agent": userAgent
-    }
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status} ${response.statusText}`);
+  try {
+    const response = await fetch(u.toString(), {
+      headers: { "user-agent": userAgent }
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+    return await response.text();
+  } catch (err) {
+    console.error(`[DEBUG] fetch failed for ${debugTitle}, will fallback to renderer: ${err.message}`);
+    return await fetchRenderedContent(url, userAgent, debugTitle);
   }
+}
 
-  return response.text();
+// Puppeteer fallback for pages that require JS to render
+let _browser = null;
+async function ensureBrowser() {
+  if (_browser) return _browser;
+  try {
+    const puppeteer = await import('puppeteer');
+    _browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+    return _browser;
+  } catch (e) {
+    console.error('[DEBUG] Puppeteer not available:', e.message);
+    throw e;
+  }
+}
+
+async function fetchRenderedContent(url, userAgent, debugTitle, selector) {
+  const browser = await ensureBrowser();
+  const page = await browser.newPage();
+  await page.setUserAgent(userAgent);
+  try {
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+    if (selector) {
+      try {
+        await page.waitForSelector(selector, { timeout: 10000 });
+        const html = await page.$$eval(selector, els => els.map(e => e.outerHTML).join('\n'));
+        await page.close();
+        return html;
+      } catch (e) {
+        // fall through to full page content
+      }
+    }
+    const content = await page.content();
+    await page.close();
+    return content;
+  } catch (e) {
+    try { await page.close(); } catch (er) {}
+    throw e;
+  }
 }
 
 async function extractBySelector(html, selector) {
@@ -314,9 +353,19 @@ async function checkOnce(config, state) {
     const title = entry.title;
     console.error(`[DEBUG] Checking: [${title}] ${url}`);
     try {
-      const rawBody = await fetchContent(url, config.userAgent, title);
       const selector = entry.selector;
-      const body = await extractBySelector(rawBody, selector);
+      let rawBody = await fetchContent(url, config.userAgent, title);
+      let body = await extractBySelector(rawBody, selector);
+      // If a selector is provided but extraction returned empty, try rendering with Puppeteer
+      if (selector && (!body || body.trim().length === 0)) {
+        try {
+          const rendered = await fetchRenderedContent(url, config.userAgent, title, selector);
+          body = rendered;
+          rawBody = rendered;
+        } catch (e) {
+          // continue with original body
+        }
+      }
       const digest = hashContent(body);
       console.error(`[DEBUG] Selector: ${selector ?? "none"} Extracted length: ${body.length}`);
       const previous = state.urls[url];
