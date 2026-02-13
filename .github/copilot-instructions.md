@@ -47,9 +47,10 @@ public/logs/events.json
 | File | Responsibility |
 |------|---------------|
 | `index.js` | Orchestrates system |
-| `scheduler.js` | Continuous execution + interval reload |
+| `utils.js` | Shared paths + helpers |
 | `config.js` | Config validation |
 | `state.js` | State load/save + removed URL cleanup |
+| `fetcher_internal_helper.js` | Playwright + timeout helpers |
 | `fetcher.js` | Lightweight fetch + Playwright fallback |
 | `differ.js` | Hashing + unified diff |
 | `storage.js` | Snapshot/diff writing + retention |

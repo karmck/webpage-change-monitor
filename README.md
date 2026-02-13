@@ -98,14 +98,15 @@ All state and outputs are written directly into `public/`.
 .
 ├── config.json
 ├── src/
-│   ├── index.js        # Orchestrator
-│   ├── scheduler.js    # Continuous monitoring loop
-│   ├── config.js       # Config validation
-│   ├── state.js        # State load/save + cleanup
-│   ├── fetcher.js      # Fetch + Playwright fallback
-│   ├── differ.js       # Hashing + unified diff
-│   ├── storage.js      # Snapshot/diff writing + retention
-│   └── events.js       # Structured logging
+│   ├── index.js                       # Orchestrator (entry point)
+│   ├── utils.js                       # shared paths and helpers
+│   ├── config.js                      # Config validation and loader
+│   ├── state.js                       # State load/save + cleanup
+│   ├── fetcher_internal_helper.js     # Playwright + timeout helpers
+│   ├── fetcher.js                     # Fetch + Playwright fallback
+│   ├── differ.js                      # Hashing + unified diff
+│   ├── storage.js                     # Snapshot/diff writing + retention
+│   └── events.js                      # Structured logging
 └── public/
     ├── config.json
     ├── data/
@@ -118,51 +119,9 @@ All state and outputs are written directly into `public/`.
             └── diff_*.txt
 ```
 
-There are no root-level `data/` or `logs/` directories.
+There are no root-level `data/` or `logs/` directories; `public/` is canonical.
 
 ---
-
-## 🏗 Architectural Diagram
-
-```
-                 ┌──────────────────────┐
-                 │      config.json     │
-                 │   (root – source)    │
-                 └────────────┬─────────┘
-                              │
-                              ▼
-                    ┌──────────────────┐
-                    │   scheduler.js   │
-                    │ (continuous loop)│
-                    └────────┬─────────┘
-                             │
-                             ▼
-                      ┌──────────────┐
-                      │   index.js   │
-                      │ (orchestrate)│
-                      └───────┬──────┘
-                              │
-        ┌─────────────────────┼─────────────────────┐
-        ▼                     ▼                     ▼
- ┌────────────┐        ┌────────────┐        ┌────────────┐
- │  fetcher   │        │   differ   │        │   storage  │
- │ (fetch +   │        │ (hash +    │        │ (snapshots │
- │ playwright)│        │  unified)  │        │  + diffs)  │
- └──────┬─────┘        └──────┬─────┘        └──────┬─────┘
-        │                     │                     │
-        └──────────────┬──────┴──────────────┬──────┘
-                       ▼                     ▼
-               ┌──────────────┐       ┌──────────────┐
-               │  state.js    │       │  events.js   │
-               │ (hash state) │       │ (event log)  │
-               └──────────────┘       └──────────────┘
-                              │
-                              ▼
-                      ┌──────────────────┐
-                      │     public/      │
-                      │  (canonical FS)  │
-                      └──────────────────┘
-```
 
 **Key Principles:**
 

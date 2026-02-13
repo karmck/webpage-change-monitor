@@ -140,9 +140,15 @@
         const resp = await fetch(`data/${encodeURIComponent(sanitized)}/index.json`);
         if (!resp.ok) return;
         const data = await resp.json();
-        const snaps = (data.snapshots || []).slice().sort().reverse();
+        const snaps = (data.snapshots || []);
         if (!snaps.length) return;
+        // index.json lists snapshots newest-first; use the first entry as latest
         span.textContent = formatSnapshotTimestamp(snaps[0]);
+        // set the snapshot anchor href so users can open it directly
+        try {
+          const anchor = document.getElementById(`snapshot-link-${idx}`);
+          if (anchor) anchor.href = `data/${encodeURIComponent(sanitized)}/${encodeURIComponent(snaps[0])}`;
+        } catch (e) {}
       } catch (e) {
         return;
       }
@@ -157,10 +163,11 @@
         const data = await resp.json();
         const files = data.diffs || [];
         if (!files.length) { cell.innerHTML = ''; return; }
-        const latest = files.slice().sort().reverse().slice(0,3);
+        const latest = (files || []).slice().sort().reverse().slice(0,3);
         latest.forEach((f,i) => {
           const a = document.createElement('a');
-          a.href = '#';
+          // set direct href to the diff file so it can be opened in a new tab
+          a.href = `logs/${encodeURIComponent(sanitized)}/${encodeURIComponent(f)}`;
           a.textContent = formatFilenameToHuman(f);
           if (i === 0) a.style.fontWeight = '700';
           a.onclick = async e => {
