@@ -15,6 +15,12 @@
     {
       "title": "ElAmigos",
       "url": "https://elamigos.site/"
+    },
+    {
+      "title": "Moltbook",
+      "url": "https://www.moltbook.com/",
+      "selector": "h3.text-base"
+
     }
   ]
 }

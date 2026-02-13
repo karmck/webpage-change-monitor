@@ -12,6 +12,7 @@ const publicDir = path.join(rootDir, "public");
 
 const args = new Set(process.argv.slice(2));
 const runOnce = args.has("--once");
+const RENDERER_BACKOFF_MINUTES = 60;
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf-8"));
@@ -100,6 +101,14 @@ function fileHash(filePath) {
   try {
     return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
   } catch (e) { return null; }
+}
+
+function promiseWithTimeout(p, ms, msg) {
+  return new Promise((resolve, reject) => {
+    let done = false;
+    const t = setTimeout(() => { if (!done) { done = true; reject(new Error(msg || 'timeout')); } }, ms);
+    p.then(r => { if (!done) { done = true; clearTimeout(t); resolve(r); } }).catch(e => { if (!done) { done = true; clearTimeout(t); reject(e); } });
+  });
 }
 
 function filesAreEqual(a, b) {
@@ -267,7 +276,7 @@ function validateConfig(config) {
       return { url: entry, title: entry };
     }
     if (!entry.url) throw new Error("Each url entry must have a 'url' field");
-    return { url: entry.url, title: entry.title ?? entry.url, selector: entry.selector };
+    return { url: entry.url, title: entry.title ?? entry.url, selector: entry.selector, dynamicData: Boolean(entry.dynamicData) };
   });
   return {
     intervalSeconds: intervalMinutes * 60,
@@ -297,67 +306,97 @@ async function fetchContent(url, userAgent, debugTitle) {
     }
   } catch (err) {
     console.error(`[DEBUG] fetch failed/timeout for ${debugTitle}, falling back to renderer: ${err && err.message}`);
-    return await fetchRenderedContent(url, userAgent, debugTitle);
+    return await fetchRenderedContent(url, userAgent, debugTitle, undefined, 'fetch-failed');
   }
 }
 
-// Puppeteer fallback for pages that require JS to render
+// Renderer fallback for pages that require JS to render (uses Playwright)
 let _browser = null;
+// Playwright-based renderer fallback
 async function ensureBrowser() {
   if (_browser) return _browser;
   try {
-    const puppeteer = await import('puppeteer');
-    // opt into new headless implementation and add safe args
-    _browser = await puppeteer.launch({ headless: "new", args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+    const playwright = await import('playwright');
+    _browser = await playwright.chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+    // Playwright browser launched (no verbose logs)
     return _browser;
   } catch (e) {
-    console.error('[DEBUG] Puppeteer not available:', e.message);
+    console.error('[DEBUG] Playwright not available:', e && e.message);
     throw e;
   }
 }
 
-async function fetchRenderedContent(url, userAgent, debugTitle, selector) {
+async function fetchRenderedContent(url, userAgent, debugTitle, selector, reason = 'unknown') {
   const browser = await ensureBrowser();
-  const page = await browser.newPage();
-  await page.setUserAgent(userAgent);
+  // Indicate Playwright will be used for this check (single concise debug log)
+  console.error(`[DEBUG] Playwright used for [${debugTitle}] reason=${reason} selector=${selector ?? 'none'}`);
+  let context;
+  let page;
   try {
-    // Attach verbose page debugging handlers
-    page.on('console', msg => {
-      try { console.error(`[PUPPETEER][console][${debugTitle}] ${msg.type()}: ${msg.text()}`); } catch (e) {}
-    });
-    page.on('pageerror', err => console.error(`[PUPPETEER][pageerror][${debugTitle}] ${err && err.message}`));
-    page.on('requestfailed', req => {
-      try { const f = req.failure(); console.error(`[PUPPETEER][requestfailed][${debugTitle}] ${req.method()} ${req.url()} (${f && f.errorText})`); } catch (e) {}
-    });
-    page.on('response', res => {
-      try { console.error(`[PUPPETEER][response][${debugTitle}] ${res.status()} ${res.url()}`); } catch (e) {}
-    });
+    context = await promiseWithTimeout(browser.newContext({ userAgent }), 15000, 'newContext timed out');
+    page = await promiseWithTimeout(context.newPage(), 10000, 'newPage timed out');
 
-    console.error(`[PUPPETEER] Navigating to ${url} (selector=${selector ?? 'none'})`);
+    // Attach verbose handlers
+    // suppress verbose page event logging
+    page.on('console', () => {});
+    page.on('pageerror', () => {});
+    page.on('requestfailed', () => {});
+    page.on('response', () => {});
     const navStart = Date.now();
-    // Use faster, safer navigation strategy: if a selector is requested wait for it, otherwise wait for DOMContentLoaded
     if (selector) {
-      await page.goto(url, { waitUntil: 'networkidle2', timeout: 20000 });
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
       try {
-        await page.waitForSelector(selector, { timeout: 8000 });
-        const html = await page.$$eval(selector, els => els.map(e => e.outerHTML).join('\n'));
-        console.error(`[PUPPETEER] selector found after ${Date.now()-navStart}ms`);
-        await page.close();
+        await page.waitForSelector(selector, { timeout: 15000 });
+        // Wait until the selector's elements contain non-empty content (text or innerHTML),
+        // which helps ensure dynamic data loaded into the element. Poll manually to avoid
+        // serialization issues with page.waitForFunction in some environments.
+        try {
+          const pollInterval = 500;
+          const pollTimeout = 10000;
+          const start = Date.now();
+          let ready = false;
+          while (Date.now() - start < pollTimeout) {
+            try {
+              const ok = await page.evaluate((sel) => {
+                const els = Array.from(document.querySelectorAll(sel));
+                if (!els.length) return false;
+                return els.some(e => {
+                  const txt = (e.innerText || e.textContent || '').trim();
+                  const html = (e.innerHTML || '').trim();
+                  return (txt && txt.length > 5) || (html && html.length > 20);
+                });
+              }, selector);
+              if (ok) { ready = true; break; }
+            } catch (e) {
+              // evaluation failed for this iteration; continue polling
+            }
+            await page.waitForTimeout(pollInterval);
+          }
+          if (ready) /* selector content ready */ null;
+            else /* selector content wait timed out */ null;
+        } catch (e) {
+          console.error(`[PLAYWRIGHT] selector content wait failed: ${e && e.message}`);
+        }
+        const html = await page.evaluate(sel => Array.from(document.querySelectorAll(sel)).map(e => e.outerHTML).join('\n'), selector);
+          /* selector found */
+        /* extracted fragment length: ${html && html.length} */
+        try { await context.close(); } catch (e) {}
         return html;
       } catch (e) {
-        console.error(`[PUPPETEER] selector not found: ${e && e.message}`);
-        // fall back to whole page content
+        /* selector not found */
+        // fall back to full content
       }
     } else {
-      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20000 });
     }
     const content = await page.content();
-    console.error(`[PUPPETEER] navigation/content retrieved after ${Date.now()-navStart}ms`);
-    await page.close();
+    /* navigation/content retrieved */
+    try { await context.close(); } catch (e) {}
     return content;
   } catch (e) {
-    console.error(`[PUPPETEER][error][${debugTitle}] ${e && e.message}`);
-    try { await page.close(); } catch (er) {}
+    console.error(`[DEBUG] Playwright error for [${debugTitle}]: ${e && e.message}`);
+    try { if (context) await context.close(); } catch (er) {}
+    try { if (_browser) { await _browser.close(); _browser = null; } } catch (er) {}
     throw e;
   }
 }
@@ -382,16 +421,51 @@ async function checkOnce(config, state) {
     console.error(`[DEBUG] Checking: [${title}] ${url}`);
     try {
       const selector = entry.selector;
-      let rawBody = await fetchContent(url, config.userAgent, title);
-      let body = await extractBySelector(rawBody, selector);
-      // If a selector is provided but extraction returned empty, try rendering with Puppeteer
-      if (selector && (!body || body.trim().length === 0)) {
+      let rawBody = null;
+      let body = "";
+      if (entry.dynamicData) {
+        console.error(`[DEBUG] dynamicData=true, forcing renderer for [${title}] ${url}`);
+        // If we've recently seen renderer failures for this URL, skip rendering for a while
+        const prev = state.urls[url] || {};
+        if (prev.rendererFailedAt) {
+          try {
+            const failedAt = new Date(prev.rendererFailedAt);
+            const cutoff = Date.now() - (RENDERER_BACKOFF_MINUTES * 60 * 1000);
+            if (failedAt.getTime() > cutoff) {
+              console.error(`[DEBUG] Skipping renderer for ${title}; previous failure at ${prev.rendererFailedAt}`);
+              rawBody = await fetchContent(url, config.userAgent, title);
+              body = await extractBySelector(rawBody, selector);
+              // skip the renderer attempt
+              continue;
+            }
+          } catch (e) {}
+        }
+        // Force using the renderer for dynamic pages
         try {
-          const rendered = await fetchRenderedContent(url, config.userAgent, title, selector);
-          body = rendered;
-          rawBody = rendered;
+          rawBody = await fetchRenderedContent(url, config.userAgent, title, selector, 'dynamicData');
+          // If we requested a selector from the renderer, it already returns the fragment
+          // so treat it as the final body without re-running selector extraction.
+          body = selector ? rawBody : await extractBySelector(rawBody, selector);
         } catch (e) {
-          // continue with original body
+          // record failure timestamp and fallback to lightweight fetch
+          const now = new Date().toISOString();
+          state.urls[url] = { ...(state.urls[url] || {}), rendererFailedAt: now };
+          console.error(`[DEBUG] Renderer failed for ${title}; recorded rendererFailedAt=${now}`);
+          rawBody = await fetchContent(url, config.userAgent, title);
+          body = await extractBySelector(rawBody, selector);
+        }
+      } else {
+        rawBody = await fetchContent(url, config.userAgent, title);
+        body = await extractBySelector(rawBody, selector);
+        // If a selector is provided but extraction returned empty, try rendering with the renderer (Playwright)
+        if (selector && (!body || body.trim().length === 0)) {
+          try {
+            const rendered = await fetchRenderedContent(url, config.userAgent, title, selector, 'selector-empty');
+            body = rendered;
+            rawBody = rendered;
+          } catch (e) {
+            // continue with original body
+          }
         }
       }
       const digest = hashContent(body);
@@ -428,9 +502,6 @@ async function checkOnce(config, state) {
           const logMsg = `${now} CHANGED [${title}] ${url} previous=${previousSnapshot} current=${snapshotFile} diff=${diffFile}`;
           appendLog(logMsg);
           console.error("\x1b[1;31mCHANGE DETECTED on " + title + "\x1b[0m");
-          consoleLog(`[${title}] --- DIFF START ---`);
-          consoleLog(diffLines.join("\n"));
-          consoleLog(`[${title}] --- DIFF END ---`);
         } else {
           const logMsg = `${now} CHANGED [${title}] ${url} current=${snapshotFile}`;
           appendLog(logMsg);
