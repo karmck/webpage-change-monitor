@@ -1,0 +1,76 @@
+-<h1>12.02.2026</h1>
++<h1>13.02.2026</h1>
+-<h5>Mewgenics ElAmigos +[Update 1.0.20645] <a href="data/Mewgenics_MULTi6_-_ElAmigos.html">DOWNLOAD</a></h5>
++<h3>Mewgenics ElAmigos +[Update 1.0.20645] <a href="data/Mewgenics_MULTi6_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>TEKKEN 8 Ultimate Edition ElAmigos [Update 2.09.00] <a href="data/TEKKEN_8_Ultimate_Edition_MULTi15_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h5>Nioh 3 Deluxe Edition ElAmigos +[Update 1.03.01] <a href="data/Nioh_3_Deluxe_Edition_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h5>
+-<h3>No Man's Sky / No Mans Sky ElAmigos [Update 6.20] <a href="data/No_Mans_Sky__ElAmigos_-_g47Uc6SQ.html">DOWNLOAD</a></h3>
++<h3>TEKKEN 8 Ultimate Edition ElAmigos [Update 2.09.00] <a href="data/TEKKEN_8_Ultimate_Edition_MULTi15_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h5>Euro Truck Simulator 2 ElAmigos [Update 1.58.1.1] <a href="data/Euro_Truck_Simulator_2_incl._DLC__ElAmigos_-_psPpFRMm.html">DOWNLOAD</a></h5>
++<h3>No Man's Sky / No Mans Sky ElAmigos [Update 6.20] <a href="data/No_Mans_Sky__ElAmigos_-_g47Uc6SQ.html">DOWNLOAD</a></h3>
+-<h3>American Truck Simulator ElAmigos [Update 1.58.1.1] <a href="data/American_Truck_Simulator__ElAmigos_-_GAk2L4D0.html">DOWNLOAD</a></h3>
++<h3>Euro Truck Simulator 2 ElAmigos [Update 1.58.1.1] <a href="data/Euro_Truck_Simulator_2_incl._DLC__ElAmigos_-_psPpFRMm.html">DOWNLOAD</a></h3>
+-<h5>Vampire The Masquerade Bloodlines 2 Deluxe Edition ElAmigos [Update 49474] <a href="data/Vampire_The_Masquerade_Bloodlines_2_Deluxe_Edition_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h5>
++<h3>American Truck Simulator ElAmigos [Update 1.58.1.1] <a href="data/American_Truck_Simulator__ElAmigos_-_GAk2L4D0.html">DOWNLOAD</a></h3>
+-<h5>Age of Mythology Retold Premium Edition ElAmigos [Build 18.56738] +[Update 18.65484] <a href="data/Age_of_Mythology_Retold_Premium_Edition_MULTi25_-_ElAmigos.html">DOWNLOAD</a></h5>
++<h3>Vampire The Masquerade Bloodlines 2 Deluxe Edition ElAmigos [Update 49474] <a href="data/Vampire_The_Masquerade_Bloodlines_2_Deluxe_Edition_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>HumanitZ ElAmigos +[Update 1.0.XZ] <a href="data/HumanitZ_MULTi10_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Age of Mythology Retold Premium Edition ElAmigos [Build 18.56738] +[Update 18.65484] <a href="data/Age_of_Mythology_Retold_Premium_Edition_MULTi25_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>Disney Dreamlight Valley ElAmigos [Update 1.21.0.7514] <a href="data/Disney_Dreamlight_Valley_Gold_Edition_MULTi7_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>HumanitZ ElAmigos +[Update 1.0.XZ] <a href="data/HumanitZ_MULTi10_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h5>Le Mans Ultimate ElAmigos [Update 1.2.3.0] <a href="data/Le_Mans_Ultimate_MULTi5_-_ElAmigos.html">DOWNLOAD</a></h5>
++<h3>Disney Dreamlight Valley ElAmigos [Update 1.21.0.7514] <a href="data/Disney_Dreamlight_Valley_Gold_Edition_MULTi7_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>The Alters ElAmigos [Update 1.4.1.2] +[Update 1.4.2.7] <a href="data/The_Alters_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Le Mans Ultimate ElAmigos [Update 1.2.3.0] <a href="data/Le_Mans_Ultimate_MULTi5_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h5>Dragon Ball Sparking ZERO Ultimate Edition ElAmigos [Build 26.01.2026] +[Update 06.02.2026] <a href="data/Dragon_Ball_Sparking_ZERO_Ultimate_Edition_MULTi16_-_ElAmigos.html">DOWNLOAD</a></h5>
++<h3>The Alters ElAmigos [Update 1.4.1.2] +[Update 1.4.2.7] <a href="data/The_Alters_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h5>Tormented Souls 2 Deluxe Edition ElAmigos +[Update 1.4.0] <a href="data/Tormented_Souls_2_Deluxe_Edition_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h5>
++<h3>Dragon Ball Sparking ZERO Ultimate Edition ElAmigos [Build 26.01.2026] +[Update 06.02.2026] <a href="data/Dragon_Ball_Sparking_ZERO_Ultimate_Edition_MULTi16_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>Alien Rogue Incursion Evolved Edition ElAmigos +[Update 06.02.2026] <a href="data/Alien_Rogue_Incursion_Evolved_Edition_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Tormented Souls 2 Deluxe Edition ElAmigos +[Update 1.4.0] <a href="data/Tormented_Souls_2_Deluxe_Edition_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>The Precinct ElAmigos [Update 1.10.21175] +[Update 1.10.21485] <a href="data/The_Precinct_MULTi11_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h5>Ferocious ElAmigos [Build 03.02.2026] +[Update 12.02.2026] <a href="data/Ferocious_MULTi8_-_ElAmigos.html">DOWNLOAD</a></h5>
+-<h3>Granblue Fantasy Versus Rising Deluxe Edition ElAmigos [Update 2.50] <a href="data/Granblue_Fantasy_Versus_Rising_Deluxe_Edition_MULTi9_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Alien Rogue Incursion Evolved Edition ElAmigos +[Update 06.02.2026] <a href="data/Alien_Rogue_Incursion_Evolved_Edition_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h5>Ravenswatch ElAmigos [Update 1.03.01] +[Update 1.04.01] <a href="data/Ravenswatch_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h5>
++<h3>The Precinct ElAmigos [Update 1.10.21175] +[Update 1.10.21485] <a href="data/The_Precinct_MULTi11_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>Caravan Sandwitch Deluxe Edition ElAmigos [Update 1.13.72.4] <a href="data/Caravan_Sandwitch_Deluxe_Edition_MULTi7_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Granblue Fantasy Versus Rising Deluxe Edition ElAmigos [Update 2.50] <a href="data/Granblue_Fantasy_Versus_Rising_Deluxe_Edition_MULTi9_-_ElAmigos.html">DOWNLOAD</a></h3>
+-
++<h3>Ravenswatch ElAmigos [Update 1.03.01] +[Update 1.04.01] <a href="data/Ravenswatch_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<br>
++<h3>Caravan Sandwitch Deluxe Edition ElAmigos [Update 1.13.72.4] <a href="data/Caravan_Sandwitch_Deluxe_Edition_MULTi7_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h1>08.02.2026</h1>
++<br>
+-<h3>Nioh 3 Deluxe Edition ElAmigos <a href="data/Nioh_3_Deluxe_Edition_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h3>
++
+-<h3>Carmageddon Rogue Shift ElAmigos <a href="data/Carmageddon_Rogue_Shift_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h1>08.02.2026</h1>
+-<h3>Front Mission 3 Remake ElAmigos <a href="data/Front_Mission_3_Remake_MULTi9_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Carmageddon Rogue Shift ElAmigos <a href="data/Carmageddon_Rogue_Shift_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<hr>
++<h3>Front Mission 3 Remake ElAmigos <a href="data/Front_Mission_3_Remake_MULTi9_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>Resident Evil 4 2023 Remake Gold Edition ElAmigos [Build 03.02.2026] <a href="data/Resident_Evil_4_2023_Remake_Deluxe_Edition_MULTi13_-_ElAmigos.html">DOWNLOAD</a></h3>
++<hr>
+-<h3>Resident Evil Village Gold Edition ElAmigos [Build 03.02.2026] <a href="data/Resident_Evil_Village_Deluxe_Edition_MULTi13_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Resident Evil 4 2023 Remake Gold Edition ElAmigos [Build 03.02.2026] <a href="data/Resident_Evil_4_2023_Remake_Deluxe_Edition_MULTi13_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>GTA 5 / Grand Theft Auto V Enhanced ElAmigos [Update 1013.29] <a href="data/Grand_Theft_Auto_V_Enhanced_MULTi13_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Resident Evil Village Gold Edition ElAmigos [Build 03.02.2026] <a href="data/Resident_Evil_Village_Deluxe_Edition_MULTi13_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>Farming Simulator 25 ElAmigos [Update 1.14.0.1] +[Update 1.16.0.2] <a href="data/Farming_Simulator_25_MULTi26_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>GTA 5 / Grand Theft Auto V Enhanced ElAmigos [Update 1013.29] <a href="data/Grand_Theft_Auto_V_Enhanced_MULTi13_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>Cairn ElAmigos +[Update 1.0.308] <a href="data/Cairn_MULTi11_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Farming Simulator 25 ElAmigos [Update 1.14.0.1] +[Update 1.16.0.2] <a href="data/Farming_Simulator_25_MULTi26_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>Age of Empires IV Anniversary Edition ElAmigos [Update 13.0.4343] +[Update 15.3.8338] <a href="data/Age_of_Empires_IV_MULTi14_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Cairn ElAmigos +[Update 1.0.308] <a href="data/Cairn_MULTi11_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>Occupy Mars The Game ElAmigos +[Update 1.0.7] <a href="data/Occupy_Mars_The_Game_MULTi14_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Age of Empires IV Anniversary Edition ElAmigos [Update 13.0.4343] +[Update 15.3.8338] <a href="data/Age_of_Empires_IV_MULTi14_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>Stronghold Crusader Definitive Edition ElAmigos [Update 2.50] <a href="data/Stronghold_Crusader_Definitive_Edition_MULTi20_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Occupy Mars The Game ElAmigos +[Update 1.0.7] <a href="data/Occupy_Mars_The_Game_MULTi14_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>Quarantine Zone The Last Check ElAmigos [Update 1.0.7.1323] +[Update 1.0.9.1397] <a href="data/Quarantine_Zone_The_Last_Check_MULTi14_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Stronghold Crusader Definitive Edition ElAmigos [Update 2.50] <a href="data/Stronghold_Crusader_Definitive_Edition_MULTi20_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>Fantasy Life i The Girl Who Steals Time Deluxe Edition ElAmigos [Update 2.0.3] +[Update 2.1.1] <a href="data/Fantasy_Life_i_The_Girl_Who_Steals_Time_Deluxe_Edition_MULTi9_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Quarantine Zone The Last Check ElAmigos [Update 1.0.7.1323] +[Update 1.0.9.1397] <a href="data/Quarantine_Zone_The_Last_Check_MULTi14_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>Mount and Blade II Bannerlord ElAmigos [Update 1.3.4] +[Update 1.3.14] <a href="data/Mount_and_Blade_II_Bannerlord_MULTi13_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Fantasy Life i The Girl Who Steals Time Deluxe Edition ElAmigos [Update 2.0.3] +[Update 2.1.1] <a href="data/Fantasy_Life_i_The_Girl_Who_Steals_Time_Deluxe_Edition_MULTi9_-_ElAmigos.html">DOWNLOAD</a></h3>
+-<h3>Ferocious ElAmigos [Build 03.02.2026] <a href="data/Ferocious_MULTi8_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Mount and Blade II Bannerlord ElAmigos [Update 1.3.4] +[Update 1.3.14] <a href="data/Mount_and_Blade_II_Bannerlord_MULTi13_-_ElAmigos.html">DOWNLOAD</a></h3>
