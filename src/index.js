@@ -74,9 +74,7 @@ function publishConfig() {
   try {
     fs.mkdirSync(publicDir, { recursive: true });
     const dest = path.join(publicDir, "config.json");
-    try {
-      if (filesAreEqual && filesAreEqual(configPath, dest)) return;
-    } catch (e) {}
+    // Always publish config.json on each run so public config stays current
     fs.copyFileSync(configPath, dest);
   } catch (e) {}
 }
