@@ -1,0 +1,12 @@
+{
+  "liveServer.settings.ignoreFiles": [
+    "**/public/data/**",
+    "**/public/logs/**",
+    "**/*.json"
+  ],
+  "liveServer.settings.root": "public",
+  "files.watcherExclude": {
+    "**/public/data/**": true,
+    "**/public/logs/**": true
+  }
+}

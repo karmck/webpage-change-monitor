@@ -72,7 +72,11 @@ function consoleLog(line) {
 function publishConfig() {
   try {
     fs.mkdirSync(publicDir, { recursive: true });
-    fs.copyFileSync(configPath, path.join(publicDir, "config.json"));
+    const dest = path.join(publicDir, "config.json");
+    try {
+      if (filesAreEqual && filesAreEqual(configPath, dest)) return;
+    } catch (e) {}
+    fs.copyFileSync(configPath, dest);
   } catch (e) {}
 }
 
@@ -81,8 +85,33 @@ function writeIndexJson(dir, key, list) {
     fs.mkdirSync(dir, { recursive: true });
     const out = {};
     out[key] = list;
-    fs.writeFileSync(path.join(dir, "index.json"), JSON.stringify(out, null, 2), "utf-8");
+    const dest = path.join(dir, "index.json");
+    const content = JSON.stringify(out, null, 2) + "\n";
+    try {
+      if (fs.existsSync(dest) && fs.readFileSync(dest, 'utf-8') === content) {
+        return;
+      }
+    } catch (e) {}
+    fs.writeFileSync(dest, content, "utf-8");
   } catch (e) {}
+}
+
+function fileHash(filePath) {
+  try {
+    return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+  } catch (e) { return null; }
+}
+
+function filesAreEqual(a, b) {
+  try {
+    if (!fs.existsSync(a) || !fs.existsSync(b)) return false;
+    const sa = fs.statSync(a);
+    const sb = fs.statSync(b);
+    if (sa.size !== sb.size) return false;
+    const ha = fileHash(a);
+    const hb = fileHash(b);
+    return ha && hb && ha === hb;
+  } catch (e) { return false; }
 }
 
 function publishTitleAssets(title) {
@@ -98,7 +127,7 @@ function publishTitleAssets(title) {
       files.forEach(f => {
         const src = path.join(srcSnapDir, f);
         const dst = path.join(dstSnapDir, f);
-        try { fs.copyFileSync(src, dst); } catch (e) {}
+        try { if (!filesAreEqual(src, dst)) fs.copyFileSync(src, dst); } catch (e) {}
         try {
           const mtime = fs.statSync(path.join(dst)).mtime;
           snapObjs.push({ name: f, path: dst, mtime });
@@ -125,7 +154,7 @@ function publishTitleAssets(title) {
       files.forEach(f => {
         const src = path.join(srcDiffDir, f);
         const dst = path.join(dstDiffDir, f);
-        try { fs.copyFileSync(src, dst); } catch (e) {}
+        try { if (!filesAreEqual(src, dst)) fs.copyFileSync(src, dst); } catch (e) {}
         try {
           const mtime = fs.statSync(path.join(dst)).mtime;
           diffObjs.push({ name: f, path: dst, mtime });
@@ -152,7 +181,8 @@ function publishAllFromConfig(cfg) {
       if (fs.existsSync(statePath)) {
         const dstStateDir = path.join(publicDir, 'data');
         fs.mkdirSync(dstStateDir, { recursive: true });
-        fs.copyFileSync(statePath, path.join(dstStateDir, 'state.json'));
+        const dest = path.join(dstStateDir, 'state.json');
+        if (!filesAreEqual(statePath, dest)) fs.copyFileSync(statePath, dest);
       }
     } catch (e) {}
     // Publish logs changes files so gh-pages retains hashes between runs
@@ -160,7 +190,8 @@ function publishAllFromConfig(cfg) {
       if (fs.existsSync(logPath)) {
         const dstLogDir = path.join(publicDir, 'logs');
         fs.mkdirSync(dstLogDir, { recursive: true });
-        fs.copyFileSync(logPath, path.join(dstLogDir, 'changes.log'));
+        const dest = path.join(dstLogDir, 'changes.log');
+        if (!filesAreEqual(logPath, dest)) fs.copyFileSync(logPath, dest);
       }
     } catch (e) {}
     if (!cfg || !Array.isArray(cfg.urls)) return;
