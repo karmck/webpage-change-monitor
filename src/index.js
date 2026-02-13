@@ -284,13 +284,19 @@ async function fetchContent(url, userAgent, debugTitle) {
   u.searchParams.set("_t", ts.toString());
   console.error(`[DEBUG] Request: [${debugTitle}] ${u.toString()} User-Agent: ${userAgent}`);
   try {
-    const response = await fetch(u.toString(), {
-      headers: { "user-agent": userAgent }
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
-    return await response.text();
+    // timeout the fetch to avoid indefinite hangs
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    try {
+      const response = await fetch(u.toString(), { headers: { "user-agent": userAgent }, signal: controller.signal });
+      if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      clearTimeout(timeout);
+      return await response.text();
+    } finally {
+      clearTimeout(timeout);
+    }
   } catch (err) {
-    console.error(`[DEBUG] fetch failed for ${debugTitle}, will fallback to renderer: ${err.message}`);
+    console.error(`[DEBUG] fetch failed/timeout for ${debugTitle}, falling back to renderer: ${err && err.message}`);
     return await fetchRenderedContent(url, userAgent, debugTitle);
   }
 }
@@ -301,7 +307,8 @@ async function ensureBrowser() {
   if (_browser) return _browser;
   try {
     const puppeteer = await import('puppeteer');
-    _browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+    // opt into new headless implementation and add safe args
+    _browser = await puppeteer.launch({ headless: "new", args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     return _browser;
   } catch (e) {
     console.error('[DEBUG] Puppeteer not available:', e.message);
@@ -314,21 +321,42 @@ async function fetchRenderedContent(url, userAgent, debugTitle, selector) {
   const page = await browser.newPage();
   await page.setUserAgent(userAgent);
   try {
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+    // Attach verbose page debugging handlers
+    page.on('console', msg => {
+      try { console.error(`[PUPPETEER][console][${debugTitle}] ${msg.type()}: ${msg.text()}`); } catch (e) {}
+    });
+    page.on('pageerror', err => console.error(`[PUPPETEER][pageerror][${debugTitle}] ${err && err.message}`));
+    page.on('requestfailed', req => {
+      try { const f = req.failure(); console.error(`[PUPPETEER][requestfailed][${debugTitle}] ${req.method()} ${req.url()} (${f && f.errorText})`); } catch (e) {}
+    });
+    page.on('response', res => {
+      try { console.error(`[PUPPETEER][response][${debugTitle}] ${res.status()} ${res.url()}`); } catch (e) {}
+    });
+
+    console.error(`[PUPPETEER] Navigating to ${url} (selector=${selector ?? 'none'})`);
+    const navStart = Date.now();
+    // Use faster, safer navigation strategy: if a selector is requested wait for it, otherwise wait for DOMContentLoaded
     if (selector) {
+      await page.goto(url, { waitUntil: 'networkidle2', timeout: 20000 });
       try {
-        await page.waitForSelector(selector, { timeout: 10000 });
+        await page.waitForSelector(selector, { timeout: 8000 });
         const html = await page.$$eval(selector, els => els.map(e => e.outerHTML).join('\n'));
+        console.error(`[PUPPETEER] selector found after ${Date.now()-navStart}ms`);
         await page.close();
         return html;
       } catch (e) {
-        // fall through to full page content
+        console.error(`[PUPPETEER] selector not found: ${e && e.message}`);
+        // fall back to whole page content
       }
+    } else {
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
     }
     const content = await page.content();
+    console.error(`[PUPPETEER] navigation/content retrieved after ${Date.now()-navStart}ms`);
     await page.close();
     return content;
   } catch (e) {
+    console.error(`[PUPPETEER][error][${debugTitle}] ${e && e.message}`);
     try { await page.close(); } catch (er) {}
     throw e;
   }
