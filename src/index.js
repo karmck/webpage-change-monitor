@@ -1,7 +1,10 @@
+import "dotenv/config";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { cleanDiff } from "./diffCleaner.js";
+import { summarizeDiff } from "./openaiAnalyzer.js";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const configPath =
@@ -120,17 +123,21 @@ function publishTitleAssets(title) {
     const dstDiffDir = path.join(publicDir, "logs", sanitized);
     if (fs.existsSync(srcDiffDir)) {
       fs.mkdirSync(dstDiffDir, { recursive: true });
-      const files = fs.readdirSync(srcDiffDir).filter(f => f.startsWith('diff_') && f.endsWith('.txt'));
+      const files = fs.readdirSync(srcDiffDir).filter(f => f.startsWith('diff_'));
       const diffObjs = [];
       files.forEach(f => {
         const src = path.join(srcDiffDir, f);
         const dst = path.join(dstDiffDir, f);
         try { fs.copyFileSync(src, dst); } catch (e) {}
-        try {
-          const mtime = fs.statSync(path.join(dst)).mtime;
-          diffObjs.push({ name: f, path: dst, mtime });
-        } catch (e) {
-          diffObjs.push({ name: f, path: dst, mtime: new Date(0) });
+
+        // Only .txt files should be listed in index.json
+        if (f.endsWith('.txt')) {
+          try {
+            const mtime = fs.statSync(dst).mtime;
+            diffObjs.push({ name: f, path: dst, mtime });
+          } catch (e) {
+            diffObjs.push({ name: f, path: dst, mtime: new Date(0) });
+          }
         }
       });
       // sort newest first, keep only the latest 3 in public
@@ -296,7 +303,8 @@ async function checkOnce(config, state) {
         const snapshotFile = snapshotPathForUrl(title);
         writeSnapshot(body, snapshotFile);
         try { publishTitleAssets(title); } catch (e) {}
-        state.urls[url] = { hash: digest, lastCheckedAt: now, lastChangedAt: now, lastSnapshot: snapshotFile };
+        const relativeSnapshot = path.relative(rootDir, snapshotFile);
+        state.urls[url] = { hash: digest, lastCheckedAt: now, lastChangedAt: now, lastSnapshot: relativeSnapshot };
         appendLog(`${now} NEW [${title}] ${url} snapshot=${snapshotFile}`);
         continue;
       }
@@ -305,16 +313,65 @@ async function checkOnce(config, state) {
         changedCount += 1;
         const snapshotFile = snapshotPathForUrl(title);
         writeSnapshot(body, snapshotFile);
-        const previousSnapshot = previous.lastSnapshot;
+        const previousSnapshot = previous.lastSnapshot
+          ? path.join(rootDir, previous.lastSnapshot)
+          : null;
 
         let diffFile = null;
         if (previousSnapshot && fs.existsSync(previousSnapshot)) {
           const prevContent = fs.readFileSync(previousSnapshot, "utf-8");
           const diffLines = simpleUnifiedDiff(prevContent, body);
+          const rawDiffText = diffLines.join("\n");
+
+          const cleanedDiff = cleanDiff(rawDiffText);
+
+          let aiResult = null;
+          let aiError = null;
+
+          // Call AI even for very small diffs (including numeric-only changes)
+          if (cleanedDiff.length > 0) {
+            try {
+              aiResult = await summarizeDiff(url, cleanedDiff);
+              if (aiResult?.summary) {
+                console.log("\n=== AI SUMMARY ===");
+                console.log(`[${title}] ${aiResult.summary}`);
+                console.log("==================\n");
+              }
+            } catch (err) {
+              aiError = err.message;
+              console.error("OpenAI summarization failed:", aiError);
+            }
+          }
 
           diffFile = diffPathForUrl(title);
           fs.mkdirSync(path.dirname(diffFile), { recursive: true });
-          fs.writeFileSync(diffFile, diffLines.join("\n"), "utf-8");
+          fs.writeFileSync(diffFile, rawDiffText, "utf-8");
+
+          const jsonLogPath = diffFile.replace(".txt", ".json");
+
+          const logPayload = {
+            timestamp: now,
+            title,
+            url,
+            previousSnapshot,
+            currentSnapshot: snapshotFile,
+            rawDiff: rawDiffText,
+            cleanedDiff,
+            ai: {
+              summary: aiResult?.summary ?? null,
+              processedSummary: aiResult?.processedSummary ?? null,
+              rawResponse: aiResult?.rawResponse ?? null,
+              truncated: aiResult?.truncated ?? false,
+              attempts: aiResult?.attempts ?? 0,
+              error: aiError
+            }
+          };
+
+          try {
+            fs.writeFileSync(jsonLogPath, JSON.stringify(logPayload, null, 2), "utf-8");
+          } catch (err) {
+            console.error("Failed to write AI JSON log:", err.message);
+          }
           try { publishTitleAssets(title); } catch (e) {}
 
           const logMsg = `${now} CHANGED [${title}] ${url} previous=${previousSnapshot} current=${snapshotFile} diff=${diffFile}`;
@@ -342,7 +399,8 @@ async function checkOnce(config, state) {
           }
         }
 
-        state.urls[url] = { hash: digest, lastCheckedAt: now, lastChangedAt: now, lastSnapshot: snapshotFile };
+        const relativeSnapshot = path.relative(rootDir, snapshotFile);
+        state.urls[url] = { hash: digest, lastCheckedAt: now, lastChangedAt: now, lastSnapshot: relativeSnapshot };
       } else {
         state.urls[url] = { ...previous, lastCheckedAt: now };
       }

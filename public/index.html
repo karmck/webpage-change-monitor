@@ -46,6 +46,14 @@
     </div>
   </div>
 
+  <div id="aiModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeAi()">&times;</span>
+      <h2>AI Summary</h2>
+      <div id="aiBody" style="white-space: pre-wrap;"></div>
+    </div>
+  </div>
+
   <div id="snapshotModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeSnapshot()">&times;</span>
@@ -158,7 +166,12 @@
         const files = data.diffs || [];
         if (!files.length) { cell.innerHTML = ''; return; }
         const latest = files.slice().sort().reverse().slice(0,3);
-        latest.forEach((f,i) => {
+        for (const [i, f] of latest.entries()) {
+          const container = document.createElement('div');
+          container.style.display = 'flex';
+          container.style.alignItems = 'center';
+          container.style.gap = '6px';
+
           const a = document.createElement('a');
           a.href = '#';
           a.textContent = formatFilenameToHuman(f);
@@ -178,8 +191,50 @@
             document.getElementById('diffModal').style.display = 'block';
             document.body.style.overflow = 'hidden';
           };
-          cell.appendChild(a);
-        });
+
+          container.appendChild(a);
+
+          // AI icon (hidden by default)
+          const aiIcon = document.createElement('span');
+          aiIcon.textContent = '🧠';
+          aiIcon.style.cursor = 'pointer';
+          aiIcon.style.fontSize = '14px';
+          aiIcon.style.display = 'none';
+
+          const jsonFile = f.replace('.txt', '.json');
+
+          // Background fetch to determine if summary exists
+          fetch(`logs/${encodeURIComponent(sanitized)}/${encodeURIComponent(jsonFile)}`)
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+              const hasProcessed = !!data?.ai?.processedSummary;
+              const hasRaw = !!data?.ai?.summary;
+
+              if (hasProcessed || hasRaw) {
+                aiIcon.style.display = 'inline';
+
+                if (hasProcessed) {
+                  aiIcon.style.color = '#0a7d5e';
+                  aiIcon.title = 'AI processed summary available';
+                } else {
+                  aiIcon.style.color = '#b36b00';
+                  aiIcon.title = 'AI raw summary available';
+                }
+
+                aiIcon.onclick = () => {
+                  const summaryText = data.ai.processedSummary || data.ai.summary || 'No AI summary available.';
+                  document.getElementById('aiBody').textContent = summaryText;
+                  document.getElementById('aiModal').style.display = 'block';
+                  document.body.style.overflow = 'hidden';
+                };
+              }
+            })
+            .catch(() => {});
+
+          container.appendChild(aiIcon);
+
+          cell.appendChild(container);
+        }
       } catch (e) { cell.innerHTML = ''; }
     }
 
@@ -222,6 +277,7 @@
     }
 
     function closeDiff() { document.getElementById('diffModal').style.display = 'none'; document.getElementById('diffBody').innerHTML = ''; document.body.style.overflow = ''; }
+    function closeAi() { document.getElementById('aiModal').style.display = 'none'; document.getElementById('aiBody').textContent = ''; document.body.style.overflow = ''; }
     function closeSnapshot() {
       document.getElementById('snapshotModal').style.display = 'none';
       document.getElementById('snapshotBody').innerHTML = '';
@@ -232,6 +288,7 @@
     window.addEventListener('click', function (event) {
       const diffModal = document.getElementById('diffModal');
       const snapshotModal = document.getElementById('snapshotModal');
+      const aiModal = document.getElementById('aiModal');
 
       if (event.target === diffModal) {
         closeDiff();
@@ -239,6 +296,10 @@
 
       if (event.target === snapshotModal) {
         closeSnapshot();
+      }
+
+      if (event.target === aiModal) {
+        closeAi();
       }
     });
 
