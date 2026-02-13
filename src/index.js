@@ -211,6 +211,38 @@ function publishAllFromConfig(cfg) {
   } catch (e) {}
 }
 
+function cleanupRemovedUrls(state, cfg) {
+  if (!state || !state.urls) return;
+  const configured = new Set((cfg && Array.isArray(cfg.urls) ? cfg.urls.map(e => (typeof e === 'string' ? e : e.url)) : []));
+  const now = new Date().toISOString();
+  for (const url of Object.keys(state.urls)) {
+    if (configured.has(url)) continue;
+    try {
+      const info = state.urls[url] || {};
+      // derive sanitized title from lastSnapshot path if present, else fallback from url
+      let sanitized = null;
+      if (info.lastSnapshot) {
+        try { sanitized = path.basename(path.dirname(info.lastSnapshot)); } catch (e) { sanitized = null; }
+      }
+      if (!sanitized) sanitized = (url || '').replace(/[^a-zA-Z0-9]/g, "_");
+
+      // remove data and logs for this title
+      try { fs.rmSync(path.join(rootDir, 'data', sanitized), { recursive: true, force: true }); } catch (e) {}
+      try { fs.rmSync(path.join(rootDir, 'logs', sanitized), { recursive: true, force: true }); } catch (e) {}
+
+      // remove published copies
+      try { fs.rmSync(path.join(publicDir, 'data', sanitized), { recursive: true, force: true }); } catch (e) {}
+      try { fs.rmSync(path.join(publicDir, 'logs', sanitized), { recursive: true, force: true }); } catch (e) {}
+
+      appendLog(`${now} REMOVED [${sanitized}] ${url}`);
+    } catch (e) {
+      // ignore cleanup errors per-title
+    }
+    // remove from state
+    try { delete state.urls[url]; } catch (e) {}
+  }
+}
+
 function simpleUnifiedDiff(oldStr, newStr) {
   const oldLines = oldStr.split("\n");
   const newLines = newStr.split("\n");
@@ -291,7 +323,6 @@ async function fetchContent(url, userAgent, debugTitle) {
   const ts = Date.now();
   const u = new URL(url);
   u.searchParams.set("_t", ts.toString());
-  console.error(`[DEBUG] Request: [${debugTitle}] ${u.toString()} User-Agent: ${userAgent}`);
   try {
     // timeout the fetch to avoid indefinite hangs
     const controller = new AbortController();
@@ -539,19 +570,23 @@ async function main() {
   }
 
   const config = validateConfig(readJson(configPath));
-  try { publishAllFromConfig(config); } catch (e) {}
   const state = loadState();
+  try { cleanupRemovedUrls(state, config); saveState(state); } catch (e) {}
+  try { publishAllFromConfig(config); } catch (e) {}
 
   console.error("[DEBUG] config loaded, URLs:", config.urls.length);
-  console.error("[DEBUG] intervalSeconds:", config.intervalSeconds, `(${config.intervalMinutes} minutes)`);
+  console.error("[DEBUG] intervalMinutes:", config.intervalMinutes);
+  console.error("[DEBUG] userAgent:", config.userAgent);
 
   const runCheck = async () => {
-    console.error("[DEBUG] Running check...");
     const currentConfig = validateConfig(readJson(configPath));
+    console.error("[DEBUG] config loaded, URLs:", currentConfig.urls.length);
+    console.error("[DEBUG] Running check...");
     const changed = await checkOnce(currentConfig, state);
     saveState(state);
+    try { cleanupRemovedUrls(state, currentConfig); saveState(state); } catch (e) {}
     try { publishAllFromConfig(currentConfig); } catch (e) {}
-    console.error("[DEBUG] Check complete, changed:", changed);
+    console.error("[DEBUG] Check complete, changed:", changed+ "\n");
     return currentConfig;
   };
 
@@ -564,7 +599,7 @@ async function main() {
   console.error("[DEBUG] Initial check");
   let currentConfig = await runCheck();
   console.error("[DEBUG] Scheduling checks every", currentConfig.intervalMinutes, "minutes");
-  console.error("[DEBUG] Initial check done. Monitoring forever. Press Ctrl+C to stop.");
+  console.error("[DEBUG] Initial check done. Monitoring forever. Press Ctrl+C to stop."+ "\n");
   let timer = setInterval(async () => {
     currentConfig = await runCheck();
   }, currentConfig.intervalSeconds * 1000);
