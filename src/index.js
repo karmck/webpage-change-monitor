@@ -308,7 +308,17 @@ function validateConfig(config) {
       return { url: entry, title: entry };
     }
     if (!entry.url) throw new Error("Each url entry must have a 'url' field");
-    return { url: entry.url, title: entry.title ?? entry.url, selector: entry.selector, dynamicData: Boolean(entry.dynamicData) };
+    // support optional regex filtering: `regex` (string) and optional `regexFlags` (string)
+    let compiledRegex = undefined;
+    if (entry.regex) {
+      try {
+        const flags = entry.regexFlags ?? 'g';
+        compiledRegex = new RegExp(entry.regex, flags);
+      } catch (e) {
+        throw new Error(`Invalid regex for url ${entry.url}: ${e && e.message}`);
+      }
+    }
+    return { url: entry.url, title: entry.title ?? entry.url, selector: entry.selector, dynamicData: Boolean(entry.dynamicData), regex: entry.regex, regexFlags: entry.regexFlags, compiledRegex };
   });
   return {
     intervalSeconds: intervalMinutes * 60,
@@ -499,8 +509,22 @@ async function checkOnce(config, state) {
           }
         }
       }
+      // If a regex filter is configured, only keep the matched content for snapshots/comparisons
+      if (entry.compiledRegex) {
+        try {
+            const matches = body.match(entry.compiledRegex);
+            const matchCount = matches ? matches.length : 0;
+            // keep only the first match (first batch)
+            body = matches && matches.length ? matches[0] : "";
+            console.error(`[DEBUG] Regex applied: pattern="${entry.regex}" flags="${entry.regexFlags ?? 'g'}" matches=${matchCount} kept_length=${body.length}`);
+        } catch (e) {
+          // on regex errors, fall back to original body
+          console.error(`[DEBUG] Regex error for [${title}]: ${e && e.message}`);
+        }
+      }
+      // Compute digest after any regex filtering so snapshots and hashes match
       const digest = hashContent(body);
-      console.error(`[DEBUG] Selector: ${selector ?? "none"} Extracted length: ${body.length}`);
+      console.error(`[DEBUG] Selector: ${selector ?? "none"} Extracted length: ${body.length} digest=${digest.slice(0,8)}`);
       const previous = state.urls[url];
       
 

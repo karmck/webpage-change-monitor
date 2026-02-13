@@ -14,7 +14,8 @@
     },
     {
       "title": "ElAmigos",
-      "url": "https://elamigos.site/"
+      "url": "https://elamigos.site/",
+      "regex": "<h1\\b[^>]*>[\\s\\S]*?(?=<h1\\b|$)"
     },
     {
       "title": "Moltbook",
