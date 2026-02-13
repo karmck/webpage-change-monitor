@@ -1,27 +1,5 @@
--<h3>Romeo is a Dead Man ElAmigos <a href="data/Romeo_is_a_Dead_Man_MULTi10_-_ElAmigos.html">DOWNLOAD</a></h3>
-+<h3>Reanimal Deluxe Edition ElAmigos <a href="data/Reanimal_Deluxe_Edition_MULTi15_-_ElAmigos.html">DOWNLOAD</a></h3>
--<h3>Mewgenics ElAmigos +[Update 1.0.20645] <a href="data/Mewgenics_MULTi6_-_ElAmigos.html">DOWNLOAD</a></h3>
-+<h3>Romeo is a Dead Man ElAmigos <a href="data/Romeo_is_a_Dead_Man_MULTi10_-_ElAmigos.html">DOWNLOAD</a></h3>
--<h3>Crisol Theater of Idols ElAmigos <a href="data/Crisol_Theater_of_Idols_MULTi7_-_ElAmigos.html">DOWNLOAD</a></h3>
-+<h3>Mewgenics ElAmigos +[Update 1.0.20645] <a href="data/Mewgenics_MULTi6_-_ElAmigos.html">DOWNLOAD</a></h3>
--<h3>RIDE 6 Deluxe Edition ElAmigos <a href="data/RIDE_6_Deluxe_Edition_MULTi10_-_ElAmigos.html">DOWNLOAD</a></h3>
-+<h3>Crisol Theater of Idols ElAmigos <a href="data/Crisol_Theater_of_Idols_MULTi7_-_ElAmigos.html">DOWNLOAD</a></h3>
--<h3>Total War Pharaoh Dynasties ElAmigos <a href="data/Total_War_Pharaoh_Dynasties_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h3>
-+<h3>RIDE 6 Deluxe Edition ElAmigos <a href="data/RIDE_6_Deluxe_Edition_MULTi10_-_ElAmigos.html">DOWNLOAD</a></h3>
--<hr>
-+<h3>Total War Pharaoh Dynasties ElAmigos <a href="data/Total_War_Pharaoh_Dynasties_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h3>
--<h5>Nioh 3 Deluxe Edition ElAmigos +[Update 1.03.01] <a href="data/Nioh_3_Deluxe_Edition_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h5>
-+<hr>
--<h3>TEKKEN 8 Ultimate Edition ElAmigos [Update 2.09.00] <a href="data/TEKKEN_8_Ultimate_Edition_MULTi15_-_ElAmigos.html">DOWNLOAD</a></h3>
-+<h5>Nioh 3 Deluxe Edition ElAmigos +[Update 1.03.01] <a href="data/Nioh_3_Deluxe_Edition_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h5>
--<h3>No Man's Sky / No Mans Sky ElAmigos [Update 6.20] <a href="data/No_Mans_Sky__ElAmigos_-_g47Uc6SQ.html">DOWNLOAD</a></h3>
-+<h3>TEKKEN 8 Ultimate Edition ElAmigos [Update 2.09.00] <a href="data/TEKKEN_8_Ultimate_Edition_MULTi15_-_ElAmigos.html">DOWNLOAD</a></h3>
--<h3>Euro Truck Simulator 2 ElAmigos [Update 1.58.1.1] <a href="data/Euro_Truck_Simulator_2_incl._DLC__ElAmigos_-_psPpFRMm.html">DOWNLOAD</a></h3>
-+<h3>No Man's Sky / No Mans Sky ElAmigos [Update 6.20] <a href="data/No_Mans_Sky__ElAmigos_-_g47Uc6SQ.html">DOWNLOAD</a></h3>
--<h3>American Truck Simulator ElAmigos [Update 1.58.1.1] <a href="data/American_Truck_Simulator__ElAmigos_-_GAk2L4D0.html">DOWNLOAD</a></h3>
-+<h3>Euro Truck Simulator 2 ElAmigos [Update 1.58.1.1] <a href="data/Euro_Truck_Simulator_2_incl._DLC__ElAmigos_-_psPpFRMm.html">DOWNLOAD</a></h3>
 -<h3>Vampire The Masquerade Bloodlines 2 Deluxe Edition ElAmigos [Update 49474] <a href="data/Vampire_The_Masquerade_Bloodlines_2_Deluxe_Edition_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h3>
-+<h3>American Truck Simulator ElAmigos [Update 1.58.1.1] <a href="data/American_Truck_Simulator__ElAmigos_-_GAk2L4D0.html">DOWNLOAD</a></h3>
++<h5>Cronos The New Dawn Deluxe Edition ElAmigos +[Update 13.02.2026] <a href="data/Cronos_The_New_Dawn_Deluxe_Edition_MULTi15_-_ElAmigos.html">DOWNLOAD</a></h5>
 -<h3>Age of Mythology Retold Premium Edition ElAmigos [Build 18.56738] +[Update 18.65484] <a href="data/Age_of_Mythology_Retold_Premium_Edition_MULTi25_-_ElAmigos.html">DOWNLOAD</a></h3>
 +<h3>Vampire The Masquerade Bloodlines 2 Deluxe Edition ElAmigos [Update 49474] <a href="data/Vampire_The_Masquerade_Bloodlines_2_Deluxe_Edition_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h3>
 -<h3>HumanitZ ElAmigos +[Update 1.0.XZ] <a href="data/HumanitZ_MULTi10_-_ElAmigos.html">DOWNLOAD</a></h3>
@@ -372,10 +350,8 @@
 +
 -<h3>Sonic Colors Ultimate Deluxe Edition ElAmigos <a href="data/Sonic_Colors_Ultimate_Deluxe_Edition_MULTi11_-_ElAmigos.html">DOWNLOAD</a></h3>
 +<h1>11.01.2026</h1>
--<h3>The Sims 4 Deluxe Edition ElAmigos [Update 1.119.109] <a href="data/The_Sims_4_Digital_Deluxe_Edition__ElAmigos_-_xxmZscdv.html">DOWNLOAD</a></h3>
-+<h3>Sonic Colors Ultimate Deluxe Edition ElAmigos <a href="data/Sonic_Colors_Ultimate_Deluxe_Edition_MULTi11_-_ElAmigos.html">DOWNLOAD</a></h3>
 -<h3>Gotham Knights Deluxe Edition ElAmigos [Update 6.0.21.0] <a href="data/Gotham_Knights_Deluxe_Edition_MULTi14_-_ElAmigos.html">DOWNLOAD</a></h3>
-+<h3>The Sims 4 Deluxe Edition ElAmigos [Update 1.119.109] <a href="data/The_Sims_4_Digital_Deluxe_Edition__ElAmigos_-_xxmZscdv.html">DOWNLOAD</a></h3>
++<h3>Sonic Colors Ultimate Deluxe Edition ElAmigos <a href="data/Sonic_Colors_Ultimate_Deluxe_Edition_MULTi11_-_ElAmigos.html">DOWNLOAD</a></h3>
 -
 +<h3>Gotham Knights Deluxe Edition ElAmigos [Update 6.0.21.0] <a href="data/Gotham_Knights_Deluxe_Edition_MULTi14_-_ElAmigos.html">DOWNLOAD</a></h3>
 -<br>
@@ -1397,7 +1373,7 @@
 -<h3>Cronos The New Dawn Deluxe Edition ElAmigos +[Update 30.10.2025] <a href="data/Cronos_The_New_Dawn_Deluxe_Edition_MULTi15_-_ElAmigos.html">DOWNLOAD</a></h3>
 +<h3>Crime Simulator ElAmigos [Update 1.21] +[Update 1.34a] <a href="data/Crime_Simulator_MULTi12_-_ElAmigos.html">DOWNLOAD</a></h3>
 -<h3>Croc Legend of the Gobbos Remastered ElAmigos [Update 1.05] <a href="data/Croc_Legend_of_the_Gobbos_Remastered_-_ElAmigos.html">DOWNLOAD</a></h3>
-+<h3>Cronos The New Dawn Deluxe Edition ElAmigos +[Update 30.10.2025] <a href="data/Cronos_The_New_Dawn_Deluxe_Edition_MULTi15_-_ElAmigos.html">DOWNLOAD</a></h3>
++<h3>Cronos The New Dawn Deluxe Edition ElAmigos +[Update 13.02.2026] <a href="data/Cronos_The_New_Dawn_Deluxe_Edition_MULTi15_-_ElAmigos.html">DOWNLOAD</a></h3>
 -<h3>Crookz The Big Heist ElAmigos [Update 24360] <a href="data/Crookz_The_Big_Heist__ElAmigos_-_ddvdqURN.html">DOWNLOAD</a></h3>
 +<h3>Croc Legend of the Gobbos Remastered ElAmigos [Update 1.05] <a href="data/Croc_Legend_of_the_Gobbos_Remastered_-_ElAmigos.html">DOWNLOAD</a></h3>
 -<h3>CrossCode ElAmigos [Update 1.4.2-3] <a href="data/CrossCode_MULTi5__ElAmigos_-_3f5ADGmg.html">DOWNLOAD</a></h3>
