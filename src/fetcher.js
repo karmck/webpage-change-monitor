@@ -30,6 +30,7 @@ async function fetchContent(url, userAgent, debugTitle) {
 
 async function fetchRenderedContent(url, userAgent, debugTitle, selector, reason = 'unknown') {
   const browser = await ensureBrowser();
+  console.error(`[DEBUG] Playwright renderer requested for [${debugTitle}] selector=${selector ?? 'none'} reason=${reason}`);
   let context;
   try {
     context = await promiseWithTimeout(browser.newContext({ userAgent }), 15000, 'newContext timed out');
@@ -63,6 +64,7 @@ async function fetchRenderedContent(url, userAgent, debugTitle, selector, reason
         }
         const html = await page.evaluate(sel => Array.from(document.querySelectorAll(sel)).map(e => e.outerHTML).join('\n'), selector);
         try { await context.close(); } catch (e) {}
+        console.error(`[DEBUG] Playwright rendered [${debugTitle}] (selector) length=${html && html.length}`);
         return html;
       } catch (e) {}
     } else {
@@ -70,6 +72,7 @@ async function fetchRenderedContent(url, userAgent, debugTitle, selector, reason
     }
     const content = await page.content();
     try { await context.close(); } catch (e) {}
+    console.error(`[DEBUG] Playwright rendered [${debugTitle}] length=${content && content.length}`);
     return content;
   } catch (e) {
     console.error(`[DEBUG] Playwright error for [${debugTitle}]: ${e && e.message}`);

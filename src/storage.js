@@ -29,6 +29,13 @@ function snapshotPathForUrl(title) {
   const sanitizedTitle = title.replace(/[^a-zA-Z0-9]/g, '_');
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
   const snapshotDir = path.join(publicDir, 'data', sanitizedTitle);
+  return path.join(snapshotDir, `${sanitizedTitle}_${ts}.normalized.txt`);
+}
+
+function snapshotRawPathForUrl(title) {
+  const sanitizedTitle = title.replace(/[^a-zA-Z0-9]/g, '_');
+  const ts = new Date().toISOString().replace(/[:.]/g, '-');
+  const snapshotDir = path.join(publicDir, 'data', sanitizedTitle);
   return path.join(snapshotDir, `${sanitizedTitle}_${ts}.html`);
 }
 
@@ -51,7 +58,7 @@ function publishTitleAssets(title) {
     const dstSnapDir = path.join(publicDir, 'data', sanitized);
     if (fs.existsSync(dstSnapDir)) {
       fs.mkdirSync(dstSnapDir, { recursive: true });
-      const files = fs.readdirSync(dstSnapDir).filter(f => f.endsWith('.html'));
+      const files = fs.readdirSync(dstSnapDir).filter(f => f.toLowerCase().endsWith('.normalized.txt'));
       const snapObjs = [];
       files.forEach(f => {
         const dst = path.join(dstSnapDir, f);
@@ -108,4 +115,4 @@ function publishAllFromConfig(cfg) {
   } catch (e) {}
 }
 
-export { writeIndexJson, diffPathForUrl, snapshotPathForUrl, writeSnapshot, publishConfig, publishTitleAssets, publishAllFromConfig };
+export { writeIndexJson, diffPathForUrl, snapshotPathForUrl, snapshotRawPathForUrl, writeSnapshot, publishConfig, publishTitleAssets, publishAllFromConfig };

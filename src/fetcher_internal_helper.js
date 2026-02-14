@@ -13,6 +13,7 @@ export async function ensureBrowser() {
   try {
     const playwright = await import('playwright');
     _browser = await playwright.chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+    console.error('[DEBUG] Playwright browser launched');
     return _browser;
   } catch (e) {
     console.error('[DEBUG] Playwright not available:', e && e.message);

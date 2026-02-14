@@ -1,21 +1,21 @@
 {
-  "intervalMinutes": 30,
+  "intervalMinutes": 5,
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
   "urls": [
     {
       "url": "https://europe.wordcamp.org/2026/tickets/",
       "title": "WordCamp Tickets",
-      "selector": "#tix"
+      "selector": "tr:has(label[for='tix-qty-601'])"
     },
     {
       "title": "RLSBB 4K",
       "url": "https://log.rlsbb.to/category/movies/4k-uhd/",
-      "selector": ".post-list"
+      "selector": ".post-list h2"
     },
     {
       "title": "ElAmigos",
       "url": "https://elamigos.site/",
-      "regex": "<h1\\b[^>]*>[\\s\\S]*?(?=<h1\\b|$)"
+      "regex": "<h1>.*?</h1>[\\s\\S]*?(?=<h1>)"
     },
     {
       "title": "Moltbook",

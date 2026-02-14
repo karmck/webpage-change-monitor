@@ -14,10 +14,9 @@
   <h1>Webpage Change Monitor</h1>
   <div id="status" style="color:#a00; margin-bottom:8px;"></div>
 
-  <label for="intervalMinutes" style="display: block; margin-bottom: 8px;">Check Interval (minutes):</label>
-  <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
-    <input type="number" id="intervalMinutes" min="1" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 120px;" disabled>
-    <button onclick="alert('Read-only')">Save Interval</button>
+  <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+    <div style="font-weight:600">Check Interval (minutes):</div>
+    <div id="intervalText" style="color:#333;">—</div>
   </div>
 
   <h2>Monitored URLs</h2>
@@ -79,9 +78,11 @@
         return;
       }
       entries = cfg.urls || [];
-      document.getElementById('intervalMinutes').value = cfg.intervalMinutes || '';
+      const it = document.getElementById('intervalText');
+      if (it) it.textContent = (cfg.intervalMinutes || 'unknown');
       if (!entries.length) document.getElementById('status').textContent = 'No URLs configured.';
       render();
+      loadEvents();
     }
 
     function render() {
@@ -94,7 +95,8 @@
           <td><a href="${entry.url}" target="_blank" rel="noopener noreferrer">${entry.url}</a></td>
           <td>${entry.selector || ''}</td>
           <td>
-            <a href="#" class="snapshot-link" onclick="return loadSnapshot('${entry.title}');">&#128190;</a>
+        <a href="#" id="snapshot-link-${idx}" class="snapshot-link" onclick="(function(e){e.preventDefault(); loadSnapshot('${entry.title}');})(event)" title="View normalized snapshot">&#128190;</a>
+        <a href="#" id="raw-snapshot-link-${idx}" class="snapshot-raw-link" onclick="(function(e){e.preventDefault(); loadRawSnapshot('${entry.title}');})(event)" title="View raw HTML snapshot">&#128196;</a>
             <span id="snapshot-date-${idx}" style="margin-left:6px; font-size:12px; color:#555;"></span>
           </td>
           <td class="diffs" id="diffs-${idx}"></td>
@@ -145,10 +147,7 @@
         // index.json lists snapshots newest-first; use the first entry as latest
         span.textContent = formatSnapshotTimestamp(snaps[0]);
         // set the snapshot anchor href so users can open it directly
-        try {
-          const anchor = document.getElementById(`snapshot-link-${idx}`);
-          if (anchor) anchor.href = `data/${encodeURIComponent(sanitized)}/${encodeURIComponent(snaps[0])}`;
-        } catch (e) {}
+        // snapshot link intentionally left as a modal-only trigger (no direct navigation)
       } catch (e) {
         return;
       }
@@ -196,6 +195,201 @@
       return div.innerHTML;
     }
 
+    // Events auto-refreshing loader
+    let __events_last = null;
+    let __events_timer = null;
+    function renderEventsFromJson(container, data) {
+      container.innerHTML = '';
+      if (!Array.isArray(data) || !data.length) {
+        container.textContent = 'No recent events.';
+        return;
+      }
+      const events = data.slice().reverse();
+      for (const ev of events) {
+        const el = document.createElement('div');
+        el.style.padding = '6px 0';
+        el.style.borderBottom = '1px solid #f2f2f2';
+        const ts = ev.timestamp || ev.time || '';
+        const type = ev.type || '';
+        const title = ev.title || ev.name || '';
+
+        function formatEventTimestamp(iso) {
+          try {
+            const d = new Date(iso);
+            if (isNaN(d)) return iso;
+            return d.toLocaleString('en-MT', { timeZone: 'Europe/Malta', dateStyle: 'medium', timeStyle: 'medium' });
+          } catch (e) { return iso; }
+        }
+        const url = ev.url ? escapeHtml(ev.url) : '';
+        function showPath(p) {
+          if (!p) return '';
+          // normalize to start with /data/ or /logs/ when possible
+          if (p.startsWith('public/data/')) return '/' + p.slice('public/'.length);
+          if (p.startsWith('data/')) return '/' + p;
+          if (p.startsWith('public/logs/')) return '/' + p.slice('public/'.length);
+          if (p.startsWith('logs/')) return '/' + p;
+          // fall back to showing as-is
+          return p;
+        }
+
+        // Render each path/value on its own line for readability
+        let detailsHtml = '';
+        if (ev.snapshot) detailsHtml += `<div style="margin-top:6px;color:#666; font-size:12px">snapshot: ${escapeHtml(showPath(ev.snapshot))}</div>`;
+        if (ev.rawSnapshot) detailsHtml += `<div style="margin-top:4px;color:#666; font-size:12px">rawSnapshot: ${escapeHtml(showPath(ev.rawSnapshot))}</div>`;
+        if (ev.current) detailsHtml += `<div style="margin-top:4px;color:#666; font-size:12px">current: ${escapeHtml(showPath(ev.current))}</div>`;
+        if (ev.previous) detailsHtml += `<div style="margin-top:4px;color:#666; font-size:12px">previous: ${escapeHtml(showPath(ev.previous))}</div>`;
+        if (ev.diff) detailsHtml += `<div style="margin-top:4px;color:#666; font-size:12px">diff: ${escapeHtml(showPath(ev.diff))}</div>`;
+        const humanTs = ts ? formatEventTimestamp(ts) : '';
+        const titleHtml = title ? `<div style="font-weight:600; margin-top:4px">${escapeHtml(title)}</div>` : '';
+        // Render each piece on its own line as requested
+        el.innerHTML = `
+          <div style="font-weight:600">${escapeHtml(humanTs)}</div>
+          <div style="font-weight:600; color:#444; margin-top:4px">${escapeHtml(type)}</div>
+          ${titleHtml}
+          <div style="color:#333; margin-top:6px">${url}</div>
+          ${detailsHtml}
+        `;
+        container.appendChild(el);
+      }
+    }
+
+    function renderEventsFromLines(container, lines) {
+      container.innerHTML = '';
+      if (!lines.length) { container.textContent = 'No recent events.'; return; }
+      // Render newest-first: display most recent lines at the top
+      const displayLines = Array.isArray(lines) ? lines.slice().reverse() : [];
+      function stripAnsi(s) {
+        if (!s) return s;
+        return s.replace(/\x1b\[[0-9;]*m/g, '');
+      }
+
+      for (const line of displayLines) {
+        const el = document.createElement('div');
+        el.style.padding = '6px 0';
+        el.style.borderBottom = '1px solid #f7f7f7';
+        // Parse lines like: [ERROR] 2026-02-14T07:07:33.879Z [DEBUG] config loaded, URLs: 4
+        const raw = stripAnsi(line);
+        const m = raw.match(/^\s*\[(\w+)\]\s+(\d{4}-\d{2}-\d{2}T[^\s]+)\s*(.*)$/);
+        if (m) {
+          // drop the leading level (e.g. [ERROR]) and format timestamp to Europe/Malta
+          const iso = m[2];
+          let msg = m[3] || '';
+          // if the message itself starts with another [LEVEL], strip it
+          msg = msg.replace(/^\s*\[\w+\]\s*/,'');
+          const human = (function(isoStr){ try { const d = new Date(isoStr); if (isNaN(d)) return isoStr; return d.toLocaleString('en-MT', { timeZone: 'Europe/Malta', dateStyle: 'medium', timeStyle: 'medium' }); } catch(e){ return isoStr; } })(iso);
+          el.innerHTML = `<div style="font-weight:600">${escapeHtml(human)}</div><div style="color:#333; margin-top:4px">${escapeHtml(msg)}</div>`;
+        } else {
+          el.textContent = stripAnsi(line);
+        }
+        container.appendChild(el);
+      }
+    }
+
+    let __events_last_key = null;
+    async function loadEventsOnce() {
+      let container = document.getElementById('events');
+      // If container doesn't exist (e.g., script ran before markup), create and append it at page bottom
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'events';
+        container.style.background = '#fff';
+        container.style.borderTop = '1px solid #e6e6e6';
+        container.style.padding = '10px';
+        container.style.maxHeight = '220px';
+        container.style.overflow = 'auto';
+        container.style.fontFamily = 'monospace';
+        container.style.fontSize = '13px';
+        container.style.lineHeight = '1.4';
+        // optional heading
+        const header = document.createElement('div');
+        header.style.display = 'flex';
+        header.style.alignItems = 'center';
+        header.style.justifyContent = 'space-between';
+        header.style.marginBottom = '8px';
+        const h = document.createElement('h2');
+        h.textContent = 'Recent Events';
+        h.style.margin = '0';
+        h.style.fontSize = '16px';
+        h.style.fontWeight = '600';
+        const controls = document.createElement('div');
+        controls.style.fontSize = '13px';
+        controls.innerHTML = `<label style="display:inline-flex; align-items:center; gap:6px;"><input id="eventsModeToggle" type="checkbox"> Show debug logs</label>`;
+        const wrapper = document.createElement('div');
+        header.appendChild(h);
+        header.appendChild(controls);
+        wrapper.appendChild(header);
+        wrapper.appendChild(container);
+        document.body.appendChild(wrapper);
+        // wire toggle
+        const toggle = document.getElementById('eventsModeToggle');
+        if (toggle) {
+          // ensure default is 'events' (structured) and checkbox unchecked
+          toggle.checked = false;
+          __events_mode = 'events';
+          toggle.addEventListener('change', () => {
+            __events_mode = toggle.checked ? 'debug' : 'events';
+            // clear last so we force reload
+            __events_last = null;
+            loadEventsOnce();
+          });
+        }
+        // make container visible by default
+        container.style.display = 'block';
+      }
+      // Determine mode
+      const mode = __events_mode || (document.getElementById('eventsModeToggle') && document.getElementById('eventsModeToggle').checked ? 'debug' : 'events');
+
+      // If debug mode is enabled, read debug.log (append timestamp to avoid intermediary caches)
+      if (mode === 'debug') {
+        try {
+          const resp = await fetch('logs/debug.log?t=' + Date.now(), { cache: 'no-store' });
+          if (resp.ok) {
+            const text = await resp.text();
+            const lines = text.trim() ? text.trim().split('\n').slice(-500) : [];
+            // always render latest debug lines so UI updates without reload
+            renderEventsFromLines(container, lines);
+            return;
+          }
+        } catch (e) {}
+      }
+
+      // Try structured JSON first (append timestamp to avoid caches)
+      try {
+        const resp = await fetch('logs/events.json?t=' + Date.now(), { cache: 'no-store' });
+        if (resp.ok) {
+          let data = [];
+          try { data = await resp.json(); } catch (e) { data = []; }
+          // always render structured events so newest entries appear without page reload
+          renderEventsFromJson(container, data);
+          return;
+        }
+      } catch (e) {}
+
+      // fallback to changes.log
+      try {
+        const r2 = await fetch('logs/changes.log', { cache: 'no-store' });
+        if (r2.ok) {
+          const text = await r2.text();
+          if (text !== __events_last) {
+            __events_last = text;
+            const lines = text.trim() ? text.trim().split('\n').reverse().slice(0,200) : [];
+            renderEventsFromLines(container, lines);
+          }
+          return;
+        }
+      } catch (e) {}
+
+      container.textContent = 'No events found.';
+    }
+
+    function loadEvents() {
+      // initial load
+      loadEventsOnce();
+      // poll every 5s for changes
+      if (__events_timer) clearInterval(__events_timer);
+      __events_timer = setInterval(loadEventsOnce, 5000);
+    }
+
     async function loadSnapshot(title) {
       const sanitized = sanitizeTitle(title);
       try {
@@ -205,6 +399,30 @@
         const snaps = idx.snapshots || [];
         if (!snaps.length) return false;
         const latest = snaps[0];
+        // Prefer normalized text version if available (filename: <base>.normalized.txt)
+        const normalizedName = latest.replace(/\.html$/i, '.normalized.txt');
+        const normalizedUrl = `data/${encodeURIComponent(sanitized)}/${encodeURIComponent(normalizedName)}`;
+        try {
+          const rn = await fetch(normalizedUrl);
+          if (rn.ok) {
+            const ntext = await rn.text();
+            document.getElementById('snapshotTitle').textContent = `Latest Snapshot (normalized): ${title}`;
+            const container = document.getElementById('snapshotBody');
+            container.innerHTML = '';
+            const pre = document.createElement('pre');
+            pre.style.whiteSpace = 'pre-wrap';
+            pre.style.wordBreak = 'break-word';
+            pre.style.background = '#fff';
+            pre.style.padding = '10px';
+            pre.textContent = ntext;
+            container.appendChild(pre);
+            document.getElementById('snapshotModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            return false;
+          }
+        } catch (e) { /* fallthrough to html rendering */ }
+
+        // fallback: render raw HTML in an iframe
         const r = await fetch(`data/${encodeURIComponent(sanitized)}/${encodeURIComponent(latest)}`);
         if (!r.ok) return false;
         const text = await r.text();
@@ -222,6 +440,37 @@
         container.innerHTML = '';
         container.appendChild(iframe);
 
+        document.getElementById('snapshotModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        return false;
+      } catch (e) { return false; }
+    }
+
+    async function loadRawSnapshot(title) {
+      const sanitized = sanitizeTitle(title);
+      try {
+        const idxResp = await fetch(`data/${encodeURIComponent(sanitized)}/index.json`);
+        if (!idxResp.ok) return false;
+        const idx = await idxResp.json();
+        const snaps = idx.snapshots || [];
+        if (!snaps.length) return false;
+        const latest = snaps[0];
+        // normalized filename to raw html filename
+        const rawName = latest.replace(/\.normalized\.txt$/i, '.html');
+        const r = await fetch(`data/${encodeURIComponent(sanitized)}/${encodeURIComponent(rawName)}`);
+        if (!r.ok) return false;
+        const text = await r.text();
+        document.getElementById('snapshotTitle').textContent = `Latest Snapshot (raw HTML): ${title}`;
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = '75vh';
+        iframe.style.border = '0';
+        iframe.style.background = '#fff';
+        iframe.setAttribute('sandbox', '');
+        iframe.srcdoc = text;
+        const container = document.getElementById('snapshotBody');
+        container.innerHTML = '';
+        container.appendChild(iframe);
         document.getElementById('snapshotModal').style.display = 'block';
         document.body.style.overflow = 'hidden';
         return false;
@@ -256,6 +505,8 @@
     async function saveConfig() { alert('Read-only'); }
     async function saveInterval() { alert('Read-only'); }
 
+    // Load events immediately so the Recent Events panel is visible on page open
+    loadEvents();
     loadConfig();
   </script>
 </body>
