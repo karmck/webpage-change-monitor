@@ -113,7 +113,16 @@
     "title": "Moltbook",
     "url": "https://www.moltbook.com/",
     "previous": "public/data/Moltbook/Moltbook_2026-02-14T22-38-50-360Z.normalized.txt",
-    "snapshot": "public/data/Moltbook/Moltbook_2026-02-14T22-41-14-169Z.normalized.txt",
+    "current": "public/data/Moltbook/Moltbook_2026-02-14T22-41-14-169Z.normalized.txt",
     "diff": "public/logs/Moltbook/diff_Moltbook_2026-02-14T22-41-14-169Z.txt"
+  },
+  {
+    "timestamp": "2026-02-14T23:17:46.711Z",
+    "type": "CHANGED",
+    "title": "Moltbook",
+    "url": "https://www.moltbook.com/",
+    "previous": "public/data/Moltbook/Moltbook_2026-02-14T22-41-14-169Z.normalized.txt",
+    "snapshot": "public/data/Moltbook/Moltbook_2026-02-14T23-17-50-395Z.normalized.txt",
+    "diff": "public/logs/Moltbook/diff_Moltbook_2026-02-14T23-17-50-396Z.txt"
   }
 ]
