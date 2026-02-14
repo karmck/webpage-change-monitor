@@ -1,18 +1,18 @@
-[ERROR] 2026-02-14T20:02:11.543Z [DEBUG] config loaded, URLs: 4
-[ERROR] 2026-02-14T20:02:11.545Z [DEBUG] intervalMinutes: 5
-[ERROR] 2026-02-14T20:02:11.545Z [DEBUG] userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
-[ERROR] 2026-02-14T20:02:11.545Z [DEBUG] Running once and exiting
-[ERROR] 2026-02-14T20:02:11.545Z [DEBUG] Running check...
-[ERROR] 2026-02-14T20:02:11.546Z [DEBUG] Checking: [WordCamp Tickets] https://europe.wordcamp.org/2026/tickets/
-[ERROR] 2026-02-14T20:02:12.492Z [DEBUG] Selector: tr:has(label[for='tix-qty-601']) Extracted length: 177 digest=23e87367
-[ERROR] 2026-02-14T20:02:12.494Z [DEBUG] Checking: [RLSBB 4K] https://log.rlsbb.to/category/movies/4k-uhd/
-[ERROR] 2026-02-14T20:02:13.137Z [DEBUG] Selector: .post-list h2 Extracted length: 2693 digest=0eda45e6
-[ERROR] 2026-02-14T20:02:13.138Z [DEBUG] Checking: [ElAmigos] https://elamigos.site/
-[ERROR] 2026-02-14T20:02:14.138Z [DEBUG] Selector: none Extracted length: 1892 digest=5ba9de23
-[ERROR] 2026-02-14T20:02:14.140Z [DEBUG] Checking: [Moltbook] https://www.moltbook.com/
-[ERROR] 2026-02-14T20:02:16.048Z [DEBUG] Playwright browser launched
-[ERROR] 2026-02-14T20:02:16.049Z [DEBUG] Playwright renderer requested for [Moltbook] selector=h3.text-base reason=selector-no-results
-[ERROR] 2026-02-14T20:02:16.514Z [DEBUG] Playwright rendered [Moltbook] (selector) length=2859
-[ERROR] 2026-02-14T20:02:16.529Z [DEBUG] Selector: h3.text-base Extracted length: 744 digest=e262f5f7
-[ERROR] 2026-02-14T20:02:16.531Z [DEBUG] Check complete, changed: 0
+[ERROR] 2026-02-14T20:07:15.415Z [DEBUG] config loaded, URLs: 4
+[ERROR] 2026-02-14T20:07:15.417Z [DEBUG] intervalMinutes: 5
+[ERROR] 2026-02-14T20:07:15.417Z [DEBUG] userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+[ERROR] 2026-02-14T20:07:15.417Z [DEBUG] Running once and exiting
+[ERROR] 2026-02-14T20:07:15.417Z [DEBUG] Running check...
+[ERROR] 2026-02-14T20:07:15.418Z [DEBUG] Checking: [WordCamp Tickets] https://europe.wordcamp.org/2026/tickets/
+[ERROR] 2026-02-14T20:07:16.368Z [DEBUG] Selector: tr:has(label[for='tix-qty-601']) Extracted length: 177 digest=23e87367
+[ERROR] 2026-02-14T20:07:16.371Z [DEBUG] Checking: [RLSBB 4K] https://log.rlsbb.to/category/movies/4k-uhd/
+[ERROR] 2026-02-14T20:07:16.820Z [DEBUG] Selector: .post-list h2 Extracted length: 2693 digest=0eda45e6
+[ERROR] 2026-02-14T20:07:16.821Z [DEBUG] Checking: [ElAmigos] https://elamigos.site/
+[ERROR] 2026-02-14T20:07:17.775Z [DEBUG] Selector: none Extracted length: 1892 digest=5ba9de23
+[ERROR] 2026-02-14T20:07:17.776Z [DEBUG] Checking: [Moltbook] https://www.moltbook.com/
+[ERROR] 2026-02-14T20:07:18.635Z [DEBUG] Playwright browser launched
+[ERROR] 2026-02-14T20:07:18.635Z [DEBUG] Playwright renderer requested for [Moltbook] selector=h3.text-base reason=selector-no-results
+[ERROR] 2026-02-14T20:07:19.118Z [DEBUG] Playwright rendered [Moltbook] (selector) length=2648
+[ERROR] 2026-02-14T20:07:19.133Z [DEBUG] Selector: h3.text-base Extracted length: 533 digest=a2a9dcd9
+[ERROR] 2026-02-14T20:07:19.136Z [DEBUG] Check complete, changed: 0
 
