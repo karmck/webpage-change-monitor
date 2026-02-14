@@ -1,34 +1,101 @@
 [
   {
-    "timestamp": "2026-02-14T20:19:14.835Z",
-    "type": "NEW",
-    "title": "WordCamp Tickets",
-    "url": "https://europe.wordcamp.org/2026/tickets/",
-    "snapshot": "public/data/WordCamp_Tickets/WordCamp_Tickets_2026-02-14T20-19-15-850Z.normalized.txt",
-    "rawSnapshot": "public/data/WordCamp_Tickets/WordCamp_Tickets_2026-02-14T20-19-15-850Z.html"
-  },
-  {
-    "timestamp": "2026-02-14T20:19:14.835Z",
-    "type": "NEW",
-    "title": "RLSBB 4K",
-    "url": "https://log.rlsbb.to/category/movies/4k-uhd/",
-    "snapshot": "public/data/RLSBB_4K/RLSBB_4K_2026-02-14T20-19-16-290Z.normalized.txt",
-    "rawSnapshot": "public/data/RLSBB_4K/RLSBB_4K_2026-02-14T20-19-16-290Z.html"
-  },
-  {
-    "timestamp": "2026-02-14T20:19:14.835Z",
-    "type": "NEW",
+    "timestamp": "2026-02-13T17:35:59.431Z",
+    "type": "CHANGED",
     "title": "ElAmigos",
     "url": "https://elamigos.site/",
-    "snapshot": "public/data/ElAmigos/ElAmigos_2026-02-14T20-19-17-372Z.normalized.txt",
-    "rawSnapshot": "public/data/ElAmigos/ElAmigos_2026-02-14T20-19-17-372Z.html"
+    "previous": "data/ElAmigos/ElAmigos_2026-02-13T15-35-36-357Z.html",
+    "current": "data/ElAmigos/ElAmigos_2026-02-13T17-36-03-373Z.html",
+    "diff": "logs/ElAmigos/diff_ElAmigos_2026-02-13T17-36-03-377Z.txt"
   },
   {
-    "timestamp": "2026-02-14T20:19:14.835Z",
-    "type": "NEW",
+    "timestamp": "2026-02-13T19:37:43.864Z",
+    "type": "CHANGED",
+    "title": "ElAmigos",
+    "url": "https://elamigos.site/",
+    "previous": "data/ElAmigos/ElAmigos_2026-02-13T17-36-03-373Z.html",
+    "current": "data/ElAmigos/ElAmigos_2026-02-13T19-37-46-929Z.html",
+    "diff": "logs/ElAmigos/diff_ElAmigos_2026-02-13T19-37-46-933Z.txt"
+  },
+  {
+    "timestamp": "2026-02-13T21:28:12.627Z",
+    "type": "CHANGED",
+    "title": "ElAmigos",
+    "url": "https://elamigos.site/",
+    "previous": "data/ElAmigos/ElAmigos_2026-02-13T19-37-46-929Z.html",
+    "current": "data/ElAmigos/ElAmigos_2026-02-13T21-28-15-530Z.html",
+    "diff": "logs/ElAmigos/diff_ElAmigos_2026-02-13T21-28-15-534Z.txt"
+  },
+  {
+    "timestamp": "2026-02-13T22:26:02.335Z",
+    "type": "CHANGED",
+    "title": "RLSBB 4K",
+    "url": "https://log.rlsbb.to/category/movies/4k-uhd/",
+    "previous": "data/RLSBB_4K/RLSBB_4K_2026-02-13T15-35-35-381Z.html",
+    "current": "data/RLSBB_4K/RLSBB_4K_2026-02-13T22-26-04-754Z.html",
+    "diff": "logs/RLSBB_4K/diff_RLSBB_4K_2026-02-13T22-26-04-755Z.txt"
+  },
+  {
+    "timestamp": "2026-02-13T22:26:02.335Z",
+    "type": "CHANGED",
+    "title": "ElAmigos",
+    "url": "https://elamigos.site/",
+    "previous": "data/ElAmigos/ElAmigos_2026-02-13T21-28-15-530Z.html",
+    "current": "data/ElAmigos/ElAmigos_2026-02-13T22-26-06-092Z.html",
+    "diff": "logs/ElAmigos/diff_ElAmigos_2026-02-13T22-26-06-097Z.txt"
+  },
+  {
+    "timestamp": "2026-02-14T11:17:24.984Z",
+    "type": "CHANGED",
+    "title": "WordCamp Tickets",
+    "url": "https://europe.wordcamp.org/2026/tickets/",
+    "previous": "data/WordCamp_Tickets/WordCamp_Tickets_2026-02-13T15-35-34-686Z.html",
+    "current": "data/WordCamp_Tickets/WordCamp_Tickets_2026-02-14T11-17-26-712Z.html",
+    "diff": "logs/WordCamp_Tickets/diff_WordCamp_Tickets_2026-02-14T11-17-26-713Z.txt"
+  },
+  {
+    "timestamp": "2026-02-14T14:20:28.914Z",
+    "type": "CHANGED",
+    "title": "RLSBB 4K",
+    "url": "https://log.rlsbb.to/category/movies/4k-uhd/",
+    "previous": "data/RLSBB_4K/RLSBB_4K_2026-02-13T22-26-04-754Z.html",
+    "current": "data/RLSBB_4K/RLSBB_4K_2026-02-14T14-20-30-610Z.html",
+    "diff": "logs/RLSBB_4K/diff_RLSBB_4K_2026-02-14T14-20-30-611Z.txt"
+  },
+  {
+    "timestamp": "2026-02-14T15:19:05.665Z",
+    "type": "CHANGED",
+    "title": "ElAmigos",
+    "url": "https://elamigos.site/",
+    "previous": "data/ElAmigos/ElAmigos_2026-02-13T22-26-06-092Z.html",
+    "current": "data/ElAmigos/ElAmigos_2026-02-14T15-19-08-465Z.html",
+    "diff": "logs/ElAmigos/diff_ElAmigos_2026-02-14T15-19-08-470Z.txt"
+  },
+  {
+    "timestamp": "2026-02-14T16:21:25.428Z",
+    "type": "CHANGED",
+    "title": "RLSBB 4K",
+    "url": "https://log.rlsbb.to/category/movies/4k-uhd/",
+    "previous": "data/RLSBB_4K/RLSBB_4K_2026-02-14T14-20-30-610Z.html",
+    "current": "data/RLSBB_4K/RLSBB_4K_2026-02-14T16-21-27-629Z.html",
+    "diff": "logs/RLSBB_4K/diff_RLSBB_4K_2026-02-14T16-21-27-630Z.txt"
+  },
+  {
+    "timestamp": "2026-02-14T16:21:25.428Z",
+    "type": "CHANGED",
+    "title": "ElAmigos",
+    "url": "https://elamigos.site/",
+    "previous": "data/ElAmigos/ElAmigos_2026-02-14T15-19-08-465Z.html",
+    "current": "data/ElAmigos/ElAmigos_2026-02-14T16-21-28-662Z.html",
+    "diff": "logs/ElAmigos/diff_ElAmigos_2026-02-14T16-21-28-666Z.txt"
+  },
+  {
+    "timestamp": "2026-02-14T20:20:23.324Z",
+    "type": "CHANGED",
     "title": "Moltbook",
     "url": "https://www.moltbook.com/",
-    "snapshot": "public/data/Moltbook/Moltbook_2026-02-14T20-19-19-567Z.normalized.txt",
-    "rawSnapshot": "public/data/Moltbook/Moltbook_2026-02-14T20-19-19-567Z.html"
+    "previous": "public/data/Moltbook/Moltbook_2026-02-14T20-16-22-265Z.normalized.txt",
+    "snapshot": "public/data/Moltbook/Moltbook_2026-02-14T20-20-28-093Z.normalized.txt",
+    "diff": "public/logs/Moltbook/diff_Moltbook_2026-02-14T20-20-28-093Z.txt"
   }
 ]
