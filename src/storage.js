@@ -58,16 +58,31 @@ function publishTitleAssets(title) {
     const dstSnapDir = path.join(publicDir, 'data', sanitized);
     if (fs.existsSync(dstSnapDir)) {
       fs.mkdirSync(dstSnapDir, { recursive: true });
-      const files = fs.readdirSync(dstSnapDir).filter(f => f.toLowerCase().endsWith('.normalized.txt'));
-      const snapObjs = [];
-      files.forEach(f => {
-        const dst = path.join(dstSnapDir, f);
-        try { const mtime = fs.statSync(dst).mtime; snapObjs.push({ name: f, path: dst, mtime }); } catch (e) { snapObjs.push({ name: f, path: dst, mtime: new Date(0) }); }
-      });
-      snapObjs.sort((a, b) => b.mtime - a.mtime);
-      for (let i = 3; i < snapObjs.length; i++) try { fs.unlinkSync(snapObjs[i].path); } catch (e) {}
-      const snaps = snapObjs.slice(0, 3).map(s => s.name);
-      writeIndexJson(dstSnapDir, 'snapshots', snaps);
+      const allFiles = fs.readdirSync(dstSnapDir);
+
+      // Handle normalized snapshots (.normalized.txt)
+      const normalized = allFiles.filter(f => f.toLowerCase().endsWith('.normalized.txt'));
+      const normObjs = normalized.map(f => {
+        const p = path.join(dstSnapDir, f);
+        try { return { name: f, path: p, mtime: fs.statSync(p).mtime }; }
+        catch (e) { return { name: f, path: p, mtime: new Date(0) }; }
+      }).sort((a, b) => b.mtime - a.mtime);
+      for (let i = 3; i < normObjs.length; i++) {
+        try { fs.unlinkSync(normObjs[i].path); } catch (e) {}
+      }
+      const latestNormalized = normObjs.slice(0, 3).map(s => s.name);
+      writeIndexJson(dstSnapDir, 'snapshots', latestNormalized);
+
+      // Handle raw HTML snapshots (.html)
+      const rawHtml = allFiles.filter(f => f.toLowerCase().endsWith('.html'));
+      const rawObjs = rawHtml.map(f => {
+        const p = path.join(dstSnapDir, f);
+        try { return { name: f, path: p, mtime: fs.statSync(p).mtime }; }
+        catch (e) { return { name: f, path: p, mtime: new Date(0) }; }
+      }).sort((a, b) => b.mtime - a.mtime);
+      for (let i = 3; i < rawObjs.length; i++) {
+        try { fs.unlinkSync(rawObjs[i].path); } catch (e) {}
+      }
     }
 
     const dstDiffDir = path.join(publicDir, 'logs', sanitized);
