@@ -51,14 +51,9 @@ function normalizeHtmlToText(html) {
   // remove script/style
   doc.querySelectorAll('script, style').forEach(n => n.remove());
 
-  // handle selects: replace with selected option text
+  // remove dropdown elements entirely (select + options)
   doc.querySelectorAll('select').forEach(sel => {
-    try {
-      const options = Array.from(sel.querySelectorAll('option'));
-      const chosen = options.find(o => o.hasAttribute('selected')) || options[0];
-      const txt = chosen ? chosen.textContent : '';
-      sel.parentNode.replaceChild(doc.createTextNode(txt), sel);
-    } catch (e) {}
+    try { sel.remove(); } catch (e) {}
   });
 
   // inputs -> value or placeholder

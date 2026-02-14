@@ -19,17 +19,15 @@
     <div id="intervalText" style="color:#333;">—</div>
   </div>
 
-  <h2>Monitored URLs</h2>
-
   <table id="urlTable">
     <thead>
       <tr>
         <th>Title</th>
         <th>URL</th>
         <th>CSS Selector (optional)</th>
+        <th>Regex filter (optional)</th>
         <th style="width: 180px;">Latest Snapshot</th>
         <th style="width: 250px;">Diffs</th>
-        <th>Actions</th>
       </tr>
     </thead>
     <tbody id="urlList"></tbody>
@@ -94,16 +92,14 @@
           <td>${entry.title}</td>
           <td><a href="${entry.url}" target="_blank" rel="noopener noreferrer">${entry.url}</a></td>
           <td>${entry.selector || ''}</td>
+          <td>${entry.regex || ''}</td>
           <td>
         <a href="#" id="snapshot-link-${idx}" class="snapshot-link" onclick="(function(e){e.preventDefault(); loadSnapshot('${entry.title}');})(event)" title="View normalized snapshot">&#128190;</a>
         <a href="#" id="raw-snapshot-link-${idx}" class="snapshot-raw-link" onclick="(function(e){e.preventDefault(); loadRawSnapshot('${entry.title}');})(event)" title="View raw HTML snapshot">&#128196;</a>
             <span id="snapshot-date-${idx}" style="margin-left:6px; font-size:12px; color:#555;"></span>
           </td>
           <td class="diffs" id="diffs-${idx}"></td>
-          <td>
-            <button class="edit" onclick="alert('Read-only')">Edit</button>
-            <button class="delete" onclick="alert('Read-only')">Delete</button>
-          </td>`;
+          `;
         tbody.appendChild(tr);
         loadDiffs(idx, entry.title);
         loadSnapshotInfo(idx, entry.title);
@@ -287,6 +283,9 @@
 
     let __events_last_key = null;
     async function loadEventsOnce() {
+      if (!isLocalEnvironment()) {
+        return;
+      }
       let container = document.getElementById('events');
       // If container doesn't exist (e.g., script ran before markup), create and append it at page bottom
       if (!container) {
@@ -382,7 +381,17 @@
       container.textContent = 'No events found.';
     }
 
+    function isLocalEnvironment() {
+      const h = window.location.hostname || '';
+      // Disable only when hosted on GitHub Pages
+      if (h.endsWith('github.io')) return false;
+      return true;
+    }
+
     function loadEvents() {
+      if (!isLocalEnvironment()) {
+        return; // Disable Recent Events outside local environment
+      }
       // initial load
       loadEventsOnce();
       // poll every 5s for changes
