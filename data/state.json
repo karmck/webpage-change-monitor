@@ -1,22 +1,28 @@
 {
   "urls": {
     "https://europe.wordcamp.org/2026/tickets/": {
-      "hash": "155732097b660b449be118ca9a6191f603843678be9b98ad989c4272c3103142",
-      "lastCheckedAt": "2026-02-14T19:18:50.580Z",
-      "lastChangedAt": "2026-02-14T11:17:24.984Z",
-      "lastSnapshot": "/home/runner/work/webpage-change-monitor/webpage-change-monitor/data/WordCamp_Tickets/WordCamp_Tickets_2026-02-14T11-17-26-712Z.html"
+      "hash": "23e873672c44d2b513b9360e4c5532a89142add0d1418e5d9f7c339de736c42c",
+      "lastCheckedAt": "2026-02-14T19:41:34.766Z",
+      "lastChangedAt": "2026-02-14T19:41:34.766Z",
+      "lastSnapshot": "/home/runner/work/webpage-change-monitor/webpage-change-monitor/public/data/WordCamp_Tickets/WordCamp_Tickets_2026-02-14T19-41-35-897Z.normalized.txt"
     },
     "https://log.rlsbb.to/category/movies/4k-uhd/": {
-      "hash": "f7a96deb2318a2ea81923023f69dee90cf4d2f6b9fd6884f1d8be8b2db5deee0",
-      "lastCheckedAt": "2026-02-14T19:18:50.580Z",
-      "lastChangedAt": "2026-02-14T16:21:25.428Z",
-      "lastSnapshot": "/home/runner/work/webpage-change-monitor/webpage-change-monitor/data/RLSBB_4K/RLSBB_4K_2026-02-14T16-21-27-629Z.html"
+      "hash": "0eda45e6d058537c6e41b6a1f48c0750378285cc1b6b59b5858ec9106e6b2c7d",
+      "lastCheckedAt": "2026-02-14T19:41:34.766Z",
+      "lastChangedAt": "2026-02-14T19:41:34.766Z",
+      "lastSnapshot": "/home/runner/work/webpage-change-monitor/webpage-change-monitor/public/data/RLSBB_4K/RLSBB_4K_2026-02-14T19-41-36-409Z.normalized.txt"
     },
     "https://elamigos.site/": {
-      "hash": "855c4344459f0e3012da67334e49c33725dc8b100400e4940541304c238bc1cc",
-      "lastCheckedAt": "2026-02-14T19:18:50.580Z",
-      "lastChangedAt": "2026-02-14T16:21:25.428Z",
-      "lastSnapshot": "/home/runner/work/webpage-change-monitor/webpage-change-monitor/data/ElAmigos/ElAmigos_2026-02-14T16-21-28-662Z.html"
+      "hash": "5ba9de23a19cf2cf14d15254cd313e51aab844357b25c6a1b2ce40bf39ce69be",
+      "lastCheckedAt": "2026-02-14T19:41:34.766Z",
+      "lastChangedAt": "2026-02-14T19:41:34.766Z",
+      "lastSnapshot": "/home/runner/work/webpage-change-monitor/webpage-change-monitor/public/data/ElAmigos/ElAmigos_2026-02-14T19-41-37-507Z.normalized.txt"
+    },
+    "https://www.moltbook.com/": {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lastCheckedAt": "2026-02-14T19:41:34.766Z",
+      "lastChangedAt": "2026-02-14T19:41:34.766Z",
+      "lastSnapshot": "/home/runner/work/webpage-change-monitor/webpage-change-monitor/public/data/Moltbook/Moltbook_2026-02-14T19-41-38-205Z.normalized.txt"
     }
   }
 }

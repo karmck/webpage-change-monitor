@@ -1,0 +1,34 @@
+[
+  {
+    "timestamp": "2026-02-14T19:41:34.766Z",
+    "type": "NEW",
+    "title": "WordCamp Tickets",
+    "url": "https://europe.wordcamp.org/2026/tickets/",
+    "snapshot": "public/data/WordCamp_Tickets/WordCamp_Tickets_2026-02-14T19-41-35-897Z.normalized.txt",
+    "rawSnapshot": "public/data/WordCamp_Tickets/WordCamp_Tickets_2026-02-14T19-41-35-897Z.html"
+  },
+  {
+    "timestamp": "2026-02-14T19:41:34.766Z",
+    "type": "NEW",
+    "title": "RLSBB 4K",
+    "url": "https://log.rlsbb.to/category/movies/4k-uhd/",
+    "snapshot": "public/data/RLSBB_4K/RLSBB_4K_2026-02-14T19-41-36-409Z.normalized.txt",
+    "rawSnapshot": "public/data/RLSBB_4K/RLSBB_4K_2026-02-14T19-41-36-409Z.html"
+  },
+  {
+    "timestamp": "2026-02-14T19:41:34.766Z",
+    "type": "NEW",
+    "title": "ElAmigos",
+    "url": "https://elamigos.site/",
+    "snapshot": "public/data/ElAmigos/ElAmigos_2026-02-14T19-41-37-507Z.normalized.txt",
+    "rawSnapshot": "public/data/ElAmigos/ElAmigos_2026-02-14T19-41-37-507Z.html"
+  },
+  {
+    "timestamp": "2026-02-14T19:41:34.766Z",
+    "type": "NEW",
+    "title": "Moltbook",
+    "url": "https://www.moltbook.com/",
+    "snapshot": "public/data/Moltbook/Moltbook_2026-02-14T19-41-38-205Z.normalized.txt",
+    "rawSnapshot": "public/data/Moltbook/Moltbook_2026-02-14T19-41-38-205Z.html"
+  }
+]
