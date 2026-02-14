@@ -7,8 +7,13 @@ import { snapshotPathForUrl, snapshotRawPathForUrl, writeSnapshot, diffPathForUr
 import { appendLog, consoleLog, appendEvent, migrateChangesLogToEvents, normalizeEventsJson, appendDebug } from './events.js';
 import fs from 'node:fs';
 import path from 'node:path';
+import dotenv from 'dotenv';
 
-async function checkOnce(config, state, RENDERER_BACKOFF_MINUTES = 60) {
+dotenv.config({ path: path.join(rootDir, '.env') });
+
+import { notifyTelegramBatch } from './telegram.js';
+
+async function checkOnce(config, state, RENDERER_BACKOFF_MINUTES = 60, changesCollector = []) {
   const now = new Date().toISOString();
   let changedCount = 0;
   for (const entry of config.urls) {
@@ -111,6 +116,8 @@ async function checkOnce(config, state, RENDERER_BACKOFF_MINUTES = 60) {
           for (let i = 3; i < allSnapshots.length; i++) try { fs.unlinkSync(allSnapshots[i].path); } catch (e) {}
         }
         state.urls[url] = { hash: digest, lastCheckedAt: now, lastChangedAt: now, lastSnapshot: snapshotFile };
+
+        changesCollector.push({ title, url, content: normalized });
       } else {
         state.urls[url] = { ...previous, lastCheckedAt: now };
       }
@@ -179,10 +186,19 @@ async function main() {
   const runCheck = async () => {
     const currentConfig = readConfig(configPath);
     console.error('[DEBUG] Running check...');
-    const changed = await checkOnce(currentConfig, state);
+    const changes = [];
+    const changed = await checkOnce(currentConfig, state, undefined, changes);
     saveState(state);
     try { cleanupRemovedUrls(state, currentConfig); saveState(state); } catch (e) {}
     try { publishAllFromConfig(currentConfig); } catch (e) {}
+    if (changes.length > 0) {
+      try {
+        await notifyTelegramBatch(changes);
+      } catch (e) {
+        console.error('[DEBUG] Telegram batch failed:', e && e.message);
+      }
+    }
+
     console.error('[DEBUG] Check complete, changed:', changed+ '\n');
     return currentConfig;
   };

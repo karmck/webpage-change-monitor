@@ -34,6 +34,8 @@ public/
 
 Snapshots and diffs are retained (default: 3 each).
 
+Note: the runtime now writes both normalized text snapshots (`*.normalized.txt`) and raw HTML archives (`*.html`) into `public/data/<Title>/`. Both snapshot types are pruned to the last three by default. The storage layer also writes per-title `index.json` files (eg. `public/data/<Title>/index.json` and `public/logs/<Title>/index.json`) that list the most recent snapshots and diffs.
+
 Structured event log:
 
 ```
@@ -54,6 +56,7 @@ public/logs/events.json
 | `fetcher.js` | Lightweight fetch + Playwright fallback |
 | `differ.js` | Hashing + unified diff |
 | `storage.js` | Snapshot/diff writing + retention |
+| `telegram.js` | Telegram notification helpers and batch sender |
 | `events.js` | Structured logging |
 
 Each module must remain single-responsibility.
@@ -127,6 +130,8 @@ Scheduler reloads config each cycle and resets interval if changed.
 
 Modify only inside `storage.js` or `events.js`.
 
+Retention applies to both normalized text snapshots (`*.normalized.txt`) and raw HTML archives (`*.html`). The storage module is responsible for pruning both types and keeping `index.json` in sync.
+
 ---
 
 ## Safe Extension Areas
@@ -136,6 +141,8 @@ Modify only inside `storage.js` or `events.js`.
 - Per-target retention configuration
 - Notification hooks (Slack, email)
 - Ignore selector support
+
+Safe to add: Telegram notification formatting and batching (see `telegram.js`). Avoid reintroducing runtime server components.
 
 Do not add runtime server components.
 
