@@ -190,7 +190,7 @@ async function main() {
   if (runOnce) {
     console.error('[DEBUG] Running once and exiting');
     await runCheck();
-    return;
+    process.exit(0);
   }
 
   console.error('[DEBUG] Initial check');
