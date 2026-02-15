@@ -131,7 +131,7 @@
     "title": "ElAmigos",
     "url": "https://elamigos.site/",
     "previous": "public/data/ElAmigos/ElAmigos_2026-02-14T20-16-20-312Z.normalized.txt",
-    "snapshot": "public/data/ElAmigos/ElAmigos_2026-02-15T01-42-55-455Z.normalized.txt",
+    "current": "public/data/ElAmigos/ElAmigos_2026-02-15T01-42-55-455Z.normalized.txt",
     "diff": "public/logs/ElAmigos/diff_ElAmigos_2026-02-15T01-42-55-456Z.txt"
   },
   {
@@ -140,7 +140,16 @@
     "title": "Moltbook",
     "url": "https://www.moltbook.com/",
     "previous": "public/data/Moltbook/Moltbook_2026-02-14T23-17-50-395Z.normalized.txt",
-    "snapshot": "public/data/Moltbook/Moltbook_2026-02-15T01-42-57-647Z.normalized.txt",
+    "current": "public/data/Moltbook/Moltbook_2026-02-15T01-42-57-647Z.normalized.txt",
     "diff": "public/logs/Moltbook/diff_Moltbook_2026-02-15T01-42-57-647Z.txt"
+  },
+  {
+    "timestamp": "2026-02-15T04:15:50.439Z",
+    "type": "CHANGED",
+    "title": "Moltbook",
+    "url": "https://www.moltbook.com/",
+    "previous": "public/data/Moltbook/Moltbook_2026-02-15T01-42-57-647Z.normalized.txt",
+    "snapshot": "public/data/Moltbook/Moltbook_2026-02-15T04-15-56-314Z.normalized.txt",
+    "diff": "public/logs/Moltbook/diff_Moltbook_2026-02-15T04-15-56-315Z.txt"
   }
 ]
